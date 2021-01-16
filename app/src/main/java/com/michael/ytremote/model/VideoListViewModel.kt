@@ -1,9 +1,7 @@
 package com.michael.ytremote.model
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.*
 import com.michael.ytremote.data.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +14,7 @@ class VideoListViewModel : ViewModel() {
     val category = MutableLiveData<String>()
     val busy = MutableLiveData<Boolean>()
     val videoList = MutableLiveData<List<VideoItem>>()
+    val currentVideo = MutableLiveData<VideoItem>()
     val filter:VideoItemFilter
         get() = VideoItemFilter(rating=rating.value, mark=mark.value, category = category.value)
 
@@ -30,6 +29,12 @@ class VideoListViewModel : ViewModel() {
                 videoList.value = list
             }
             busy.value = false
+        }
+    }
+
+    companion object {
+        fun instanceFor(activity: ViewModelStoreOwner):VideoListViewModel {
+            return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(VideoListViewModel::class.java)
         }
     }
 }

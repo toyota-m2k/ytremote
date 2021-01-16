@@ -39,7 +39,7 @@ object VideoListSource {
 //        }
 //    }
 
-    val listUrl = "http://localhost:3500/ytplayer/list"
+    val listUrl = "http://192.168.0.15:3500/ytplayer/list"
 
     suspend fun retrieve(filter:VideoItemFilter? = null) : List<VideoItem>? {
         val url = filter?.urlWithQueryString(listUrl) ?: listUrl
@@ -50,13 +50,13 @@ object VideoListSource {
 
         return try {
             val json = NetClient.executeAsync(req).use { res ->
-                if (res.code != 200) {
+                if (res.code == 200) {
                     val body = withContext(Dispatchers.IO) {
                         res.body?.string()
                     } ?: throw IllegalStateException("Server Response No Data.")
                     JSONObject(body)
                 } else {
-                    throw IllegalStateException("Server Response Error")
+                    throw IllegalStateException("Server Response Error (${res.code})")
                 }
             }
             val jsonList = json.getJSONArray("list") ?: throw IllegalStateException("Server Response Null List.")

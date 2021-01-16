@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="com.michael.ytremote.model.VideoItemViewModel" />
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:paddingStart="3dp"
+        android:paddingEnd="3dp"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:background="@{model.isSelected ? @color/purple_700 : @color/list_item_bg}"
+            android:padding="5dp"
+            android:text="@{model.name}"
+            android:textColor="@color/white"
+            android:onClick="@{model::onSelected}"
+            tools:text="abcdeig"
+            />
+
+    </LinearLayout>
+</layout>

@@ -3,7 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
 }
-
+apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
@@ -51,6 +51,8 @@ dependencies {
     implementation "io.reactivex.rxjava3:rxjava:$rx_java_version"
     implementation "io.reactivex.rxjava3:rxandroid:$rx_android_version"
     implementation "io.reactivex.rxjava3:rxkotlin:$rx_kotlin_version"
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation "androidx.recyclerview:recyclerview:$recycle_view_version"
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
