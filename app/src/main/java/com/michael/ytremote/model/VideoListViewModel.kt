@@ -15,6 +15,7 @@ class VideoListViewModel : ViewModel() {
     val busy = MutableLiveData<Boolean>()
     val videoList = MutableLiveData<List<VideoItem>>()
     val currentVideo = MutableLiveData<VideoItem>()
+    val resetSidePanel = MutableLiveData<Any>()
     val filter:VideoItemFilter
         get() = VideoItemFilter(rating=rating.value, mark=mark.value, category = category.value)
 

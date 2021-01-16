@@ -76,6 +76,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.videoList.observe(this) {
             (binding.videoList.adapter as? ListAdapter)?.items = it
         }
+        viewModel.resetSidePanel.observe(this){
+            drawerLayout.closeDrawer(binding.navDrawer)
+        }
 
     }
 
