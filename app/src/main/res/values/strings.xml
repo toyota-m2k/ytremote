@@ -13,4 +13,13 @@
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
     <string name="refresh">Refresh</string>
+    <string name="error">Can\'t play the movie.</string>
+    <string name="title_activity_fullscreen_video">BooTube Video</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="seekTop">Seek Start</string>
+    <string name="prev_button">Previous Movie</string>
+    <string name="next_button">Next Movie</string>
+    <string name="pinp_button">Picture in Picture</string>
+    <string name="fullscreen_button">Full Screen</string>
 </resources>
