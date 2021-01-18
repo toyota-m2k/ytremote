@@ -1,14 +1,11 @@
 package com.michael.ytremote.data
 
-import com.michael.ytremote.utils.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import okhttp3.Dispatcher
+import com.michael.ytremote.utils.UtLogger
+import com.michael.ytremote.utils.toIterable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.Request
 import org.json.JSONObject
-import java.lang.IllegalStateException
 
 data class VideoItem(val id:String,val name:String) {
     internal constructor(j:JSONObject) : this(j.getString("id"), j.getString("name"))
@@ -39,10 +36,12 @@ object VideoListSource {
 //        }
 //    }
 
-    val listUrl = "http://192.168.0.15:3500/ytplayer/list"
+    public const val urlBase = "http://192.168.0.12:3500/ytplayer"
+
+    private const val listUrl = "http://192.168.0.12:3500/ytplayer/list"
 
     suspend fun retrieve(filter:VideoItemFilter? = null) : List<VideoItem>? {
-        val url = filter?.urlWithQueryString(listUrl) ?: listUrl
+        val url = HostInfo.listUrl(filter)
         val req = Request.Builder()
                 .url(url)
                 .get()

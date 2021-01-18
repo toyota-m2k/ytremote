@@ -5,6 +5,7 @@ package com.michael.ytremote.utils
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Parcel
 import android.util.Size
 import android.view.View
 import android.view.ViewGroup
@@ -108,4 +109,11 @@ fun View.setMargin(left:Int, top:Int, right:Int, bottom:Int) {
         layoutParams = p
     }
 
+}
+
+fun Parcel.writeBool(v:Boolean) {
+    writeInt(if(v) 1 else 0)
+}
+fun Parcel.readBool() : Boolean {
+    return readInt() != 0
 }

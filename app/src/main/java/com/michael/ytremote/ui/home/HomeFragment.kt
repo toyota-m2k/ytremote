@@ -3,6 +3,8 @@ package com.michael.ytremote.ui.home
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,20 +18,22 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.michael.ytremote.R
+import com.michael.ytremote.data.HostInfo
 import com.michael.ytremote.databinding.FragmentHomeBinding
 import com.michael.ytremote.model.VideoListViewModel
 import com.michael.ytremote.player.FullscreenVideoActivity
 import com.michael.ytremote.player.MicVideoPlayer
+import com.michael.ytremote.utils.readBool
+import com.michael.ytremote.utils.writeBool
 
 class HomeFragment : Fragment() {
-
     private lateinit var viewModel:VideoListViewModel
     private lateinit var binding:FragmentHomeBinding
 
     private val videoUri:Uri?
         get() {
             val id = viewModel.currentVideo.value?.id ?: return null
-            return Uri.parse("http://192.168.0.15:3500/ytplayer/video?id=${id}")
+            return Uri.parse(HostInfo.videoUrl(id))
         }
 
     override fun onCreateView(
