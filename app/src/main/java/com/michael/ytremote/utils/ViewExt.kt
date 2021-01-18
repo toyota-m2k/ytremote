@@ -10,6 +10,7 @@ import android.util.Size
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 
@@ -39,7 +40,7 @@ fun Context.viewModelStorageOwner(): ViewModelStoreOwner? {
     return findSpecialContext()
 }
 
-fun View.activity(): Activity? {
+fun View.activity(): FragmentActivity? {
     return context?.findSpecialContext()
 }
 fun View.fragment(): Fragment? {

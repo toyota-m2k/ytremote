@@ -30,10 +30,10 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel:VideoListViewModel
     private lateinit var binding:FragmentHomeBinding
 
-    private val videoUri:Uri?
+    private val videoUrl:String?
         get() {
             val id = viewModel.currentVideo.value?.id ?: return null
-            return Uri.parse(HostInfo.videoUrl(id))
+            return HostInfo.videoUrl(id)
         }
 
     override fun onCreateView(
@@ -56,13 +56,9 @@ class HomeFragment : Fragment() {
 //            textView.text = it
 //        })
 
-        var prevId:String? = null
         viewModel.currentVideo.observe(viewLifecycleOwner) {
-            if(it!=null && prevId != it.id) {
-                prevId = it.id
-                videoUri?.let { uri ->
-                    binding.playerView.source = uri
-                }
+            videoUrl?.let { url ->
+                binding.playerView.url = url
             }
         }
 
@@ -71,7 +67,7 @@ class HomeFragment : Fragment() {
 
     private fun showFullScreenViewer(pinp:Boolean) {
         val activity = requireActivity()
-        val source = videoUri ?: return
+        val source = videoUrl ?: return
         val player = binding.playerView
 
         val position = player.seekPosition

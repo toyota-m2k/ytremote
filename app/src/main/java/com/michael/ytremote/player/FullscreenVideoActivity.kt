@@ -194,12 +194,15 @@ class FullscreenVideoActivity : AppCompatActivity() {
         /**
          * 閉じるボタン
          */
-        findViewById<ImageButton>(R.id.mic_ctr_close_button)?.setOnClickListener {
-            // finish()
-            // ここは、本来、finish()でもよい（onStop が呼ばれて、その中で finishAndRemoveTask()を呼んでいるから）はずだし、Android 10 (Pixel) では、そのように動作したが、
-            // Android 9 （HUAWEI）では、アクティビティが残ってしまったので、ここでも、finishAndRemoveTask()を呼ぶようにする。
-            // finishAndRemoveTaskを２回呼んで、本当に大丈夫なのか。
-            finishAndRemoveTask()
+        findViewById<ImageButton>(R.id.mic_ctr_close_button)?.let {
+            it.visibility = View.VISIBLE
+            it.setOnClickListener {
+                // finish()
+                // ここは、本来、finish()でもよい（onStop が呼ばれて、その中で finishAndRemoveTask()を呼んでいるから）はずだし、Android 10 (Pixel) では、そのように動作したが、
+                // Android 9 （HUAWEI）では、アクティビティが残ってしまったので、ここでも、finishAndRemoveTask()を呼ぶようにする。
+                // finishAndRemoveTaskを２回呼んで、本当に大丈夫なのか。
+                finishAndRemoveTask()
+            }
         }
 
         /**
@@ -252,7 +255,7 @@ class FullscreenVideoActivity : AppCompatActivity() {
      * onCreate / onNewIntent 共通の処理
      */
     private fun initWithIntent(intent:Intent) {
-        val source = intent.getParcelableExtra<Uri>(KEY_SOURCE)
+        val source = intent.getStringExtra(KEY_SOURCE)
         requestPinP = intent.getBooleanExtra(KEY_PINP, false)
         if (null != source) {
             val playing = intent.getBooleanExtra(KEY_PLAYING, false)
@@ -262,8 +265,8 @@ class FullscreenVideoActivity : AppCompatActivity() {
             if (start >= 0) {
                 fsa_player.setClip(MicClipping(start, end))
             }
-            mSource = source
-            fsa_player.setSource(source, playing, position)
+            mSource = Uri.parse(source)
+            fsa_player.setSource(mSource!!, playing, position)
         }
     }
 

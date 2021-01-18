@@ -59,6 +59,7 @@
             android:layout_height="@dimen/exo_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
+            android:visibility="gone"
             app:srcCompat="@drawable/ic_collapse" />
     </LinearLayout>
 

@@ -47,9 +47,10 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     // region Private Properties
 
+    private val mPlayerHolder = ExoPlayerHolder.instanceFor(activity()!!)
+    private val mPlayer = mPlayerHolder.player!! // SimpleExoPlayer = SimpleExoPlayer.Builder(context).build()
     private val mBindings = Bindings()
     private var mSource : Uri? = null
-    private val mPlayer : SimpleExoPlayer = SimpleExoPlayer.Builder(context).build()
     private var mEnded : Boolean = false                // 動画ファイルの最後まで再生が終わって停止した状態から、Playボタンを押したときに、先頭から再生を開始する動作を実現するためのフラグ
     private var mMediaSource:MediaSource? = null
     private var mClipping : MicClipping? = null
@@ -185,7 +186,8 @@ class MicVideoPlayer @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         mPlayer.removeListener(mEventListener)
         mPlayer.removeVideoListener(mVideoListener)
-        mPlayer.release()
+        mBindings.playerView.player = null
+//        mPlayer.release()
 
         sourceChangedListener.clear()
         videoPreparedListener.clear()
@@ -478,7 +480,6 @@ class MicVideoPlayer @JvmOverloads constructor(
         reset()
         mBindings.progressRing.visibility = View.VISIBLE
         mSource = uri
-
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 sourceChangedListener.invoke(this@MicVideoPlayer, uri)
@@ -495,11 +496,13 @@ class MicVideoPlayer @JvmOverloads constructor(
         }
     }
 
-    var source:Uri?
-        get() = mSource
+    var url:String?
+        get() = mSource?.toString()
         set(v) {
             if(v!=null) {
-                setSource(v, true, 0L)
+                mPlayerHolder.checkAndGo(v) {
+                    setSource(Uri.parse(v), true, 0L)
+                }
             }
         }
 
