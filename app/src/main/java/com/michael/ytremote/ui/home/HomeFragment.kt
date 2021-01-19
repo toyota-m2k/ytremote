@@ -8,6 +8,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -29,6 +30,7 @@ import com.michael.ytremote.utils.writeBool
 class HomeFragment : Fragment() {
     private lateinit var viewModel:VideoListViewModel
     private lateinit var binding:FragmentHomeBinding
+    private lateinit var handlers:Handlers
 
     private val videoUrl:String?
         get() {
@@ -42,10 +44,11 @@ class HomeFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         viewModel = VideoListViewModel.instanceFor(requireActivity())
+        handlers = Handlers()
         binding = DataBindingUtil.inflate<FragmentHomeBinding>(inflater, R.layout.fragment_home, container, false).apply {
             lifecycleOwner = viewLifecycleOwner
             model = viewModel
-            handler = Handlers()
+            handler = handlers
         }
 
 //        homeViewModel =
@@ -60,6 +63,23 @@ class HomeFragment : Fragment() {
             videoUrl?.let { url ->
                 binding.playerView.url = url
             }
+        }
+
+        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener(handlers::onPrev)
+        }
+        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener(handlers::onNext)
+        }
+        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener(handlers::onPinP)
+        }
+        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener(handlers::onFullscreen)
         }
 
         return binding.root
