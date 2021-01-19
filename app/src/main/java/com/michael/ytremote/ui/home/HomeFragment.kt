@@ -95,12 +95,24 @@ class HomeFragment : Fragment() {
 
 
     inner class Handlers {
+
+
         fun onNext(view:View) {
-
+            val list = viewModel.videoList.value ?: return
+            val index = list.indexOf(viewModel.currentVideo.value) + 1
+            if(index<list.count()) {
+                viewModel.currentVideo.value = list[index]
+            }
         }
+
         fun onPrev(view:View) {
-
+            val list = viewModel.videoList.value ?: return
+            val index = list.indexOf(viewModel.currentVideo.value) - 1
+            if(0<=index) {
+                viewModel.currentVideo.value = list[index]
+            }
         }
+
         fun onPinP(view:View) {
             showFullScreenViewer(true)
         }

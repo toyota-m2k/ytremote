@@ -1,13 +1,8 @@
 package com.michael.ytremote.model
 
-import android.view.View
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.michael.ytremote.data.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class VideoListViewModel : ViewModel() {
     val rating = MutableLiveData<Rating>()
