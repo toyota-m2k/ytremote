@@ -1,10 +1,11 @@
 package com.michael.ytremote.model
 
 import androidx.lifecycle.*
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.michael.ytremote.data.*
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel : ViewModel(), IPlayerOwner {
     val rating = MutableLiveData<Rating>()
     val mark = MutableLiveData<Mark>()
     val category = MutableLiveData<String>()
@@ -17,8 +18,21 @@ class MainViewModel : ViewModel() {
         get() = appViewModel.videoList
     val currentVideo : MutableLiveData<VideoItem>
         get() = appViewModel.currentVideo
+    var currentId:String? = null
 
-    fun 
+    val player = MutableLiveData<SimpleExoPlayer>()
+
+    init {
+        appViewModel.registerPrimaryOwner(this)
+    }
+
+    override fun ownerAssigned(player: SimpleExoPlayer) {
+        this.player.value = player
+    }
+
+    override fun ownerResigned() {
+        this.player.value = null
+    }
 
     val filter:VideoItemFilter
         get() = VideoItemFilter(rating=rating.value, mark=mark.value, category = category.value)

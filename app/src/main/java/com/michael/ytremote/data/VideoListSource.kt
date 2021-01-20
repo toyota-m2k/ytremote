@@ -9,6 +9,9 @@ import org.json.JSONObject
 
 data class VideoItem(val id:String,val name:String) {
     internal constructor(j:JSONObject) : this(j.getString("id"), j.getString("name"))
+
+    val url:String
+        get() = HostInfo.videoUrl(id)
 }
 
 object VideoListSource {

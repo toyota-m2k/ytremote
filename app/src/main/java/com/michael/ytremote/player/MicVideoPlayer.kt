@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.video.VideoListener
 import com.michael.ytremote.R
+import com.michael.ytremote.model.AppViewModel
 import com.michael.ytremote.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,8 +48,10 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     // region Private Properties
 
-    private val mPlayerHolder = ExoPlayerHolder.instanceFor(activity()!!)
-    private val mPlayer = mPlayerHolder.player!! // SimpleExoPlayer = SimpleExoPlayer.Builder(context).build()
+//    private val mPlayerHolder = ExoPlayerHolder.instanceFor(activity()!!)
+//    private val mPlayer = mPlayerHolder.player!! // SimpleExoPlayer = SimpleExoPlayer.Builder(context).build()
+    private val appViewModel = AppViewModel.instance
+    private var mPlayer:SimpleExoPlayer?=null
     private val mBindings = Bindings()
     private var mSource : Uri? = null
     private var mEnded : Boolean = false                // 動画ファイルの最後まで再生が終わって停止した状態から、Playボタンを押したときに、先頭から再生を開始する動作を実現するためのフラグ
@@ -57,6 +60,18 @@ class MicVideoPlayer @JvmOverloads constructor(
     private val mFitParent : Boolean
     private val mHandler : Handler by lazy {
         Handler(Looper.getMainLooper())
+    }
+
+    fun setPlayer(player:SimpleExoPlayer?) {
+        mBindings.playerView.player = player
+        if(player!=null) {
+            player.addListener(mEventListener)
+            player.addVideoListener(mVideoListener)
+        } else {
+            mPlayer?.removeListener(mEventListener)
+            mPlayer?.removeVideoListener(mVideoListener)
+        }
+        mPlayer = player
     }
 
     // endregion
@@ -94,8 +109,10 @@ class MicVideoPlayer @JvmOverloads constructor(
 
         override fun onLoadingChanged(isLoading: Boolean) {
             UtLogger.debug("EXO: loading = $isLoading")
-            if(isLoading && mPlayer.playbackState==Player.STATE_BUFFERING) {
-                mBindings.playerState = PlayerState.Loading
+            mPlayer?.also { player->
+                if(isLoading && player.playbackState==Player.STATE_BUFFERING) {
+                    mBindings.playerState = PlayerState.Loading
+                }
             }
         }
 
@@ -145,10 +162,15 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     init {
         LayoutInflater.from(context).inflate(R.layout.video_exo_player, this)
-        mBindings.playerView.player = mPlayer
-        mPlayer.addListener(mEventListener)
-        mPlayer.addVideoListener(mVideoListener)
         isSaveFromParentEnabled = false
+
+        appViewModel.currentVideo.observe(lifecycleOwner()!!) { item->
+            if(item!=null) {
+                if(item.id!=appViewModel.currentId) {
+                    setSource(Uri.parse(item.url), true, 0L)
+                }
+            }
+        }
 
         val sa = context.theme.obtainStyledAttributes(attrs,R.styleable.MicVideoPlayer,defStyleAttr,0)
         try {
@@ -185,8 +207,8 @@ class MicVideoPlayer @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
-        mPlayer.removeListener(mEventListener)
-        mPlayer.removeVideoListener(mVideoListener)
+        mPlayer?.removeListener(mEventListener)
+        mPlayer?.removeVideoListener(mVideoListener)
         mBindings.playerView.player = null
 //        mPlayer.release()
 
@@ -390,18 +412,18 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     // Properties
     val naturalDuration: Long
-        get() = mPlayer.duration
+        get() = mPlayer?.duration ?: 0
 
     val seekPosition: Long
-        get() = mPlayer.currentPosition
+        get() = mPlayer?.currentPosition ?: 0
 
     var isMuted:Boolean
-        get() = mPlayer.volume != 0f
+        get() = mPlayer?.volume != 0f
         set(v) {
             if(v) {
-                mPlayer.volume = 0f
+                mPlayer?.volume = 0f
             } else {
-                mPlayer.volume = 1f
+                mPlayer?.volume = 1f
             }
         }
 
@@ -410,7 +432,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         get() = mBindings.playerState
 
     val isPlayingOrReservedToPlay : Boolean
-        get() = mBindings.isPlaying || mPlayer.playWhenReady
+        get() = mBindings.isPlaying || mPlayer?.playWhenReady ?: false
 
     val videoSize: Size
         get() = mBindings.videoSize
@@ -444,7 +466,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         mSource = null
         mEnded = false
         mBindings.reset()
-        mPlayer.stop()
+        mPlayer?.stop()
     }
 
     fun setClip(clipping:MicClipping?) {
@@ -454,7 +476,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         mClipping = clipping
         val source = createClippingSource()
         if(null!=source) {
-            mPlayer.prepare(source, true, true)
+            mPlayer?.prepare(source, true, true)
             if(null!=clipping) {
                 playerSeek(clipping.start)
             }
@@ -479,6 +501,8 @@ class MicVideoPlayer @JvmOverloads constructor(
 
 
     fun setSource(uri: Uri, autoPlay: Boolean, playFrom: Long) {
+        val player = mPlayer ?: return
+
         reset()
         mBindings.progressRing.visibility = View.VISIBLE
         mSource = uri
@@ -489,24 +513,24 @@ class MicVideoPlayer @JvmOverloads constructor(
                         DefaultDataSourceFactory(context, "amv")
                 ).createMediaSource(uri)
                 mMediaSource = mediaSource
-                mPlayer.prepare(createClippingSource(mediaSource), true, true)
+                player.prepare(createClippingSource(mediaSource), true, true)
                 if (null != mClipping || playFrom > 0) {
                     playerSeek(playFrom)
                 }
-                mPlayer.playWhenReady = autoPlay
+                player.playWhenReady = autoPlay
             }
         }
     }
 
-    var url:String?
-        get() = mSource?.toString()
-        set(v) {
-            if(v!=null) {
-                mPlayerHolder.checkAndGo(v) {
-                    setSource(Uri.parse(v), true, 0L)
-                }
-            }
-        }
+//    var url:String?
+//        get() = mSource?.toString()
+//        set(v) {
+//            if(v!=null) {
+//                mPlayerHolder.checkAndGo(v) {
+//                    setSource(Uri.parse(v), true, 0L)
+//                }
+//            }
+//        }
 
 
     fun play() {
@@ -515,7 +539,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             mEnded = false
             playerSeek(0)
         }
-        mPlayer.playWhenReady = true
+        mPlayer?.playWhenReady = true
     }
 
 //    fun playFrom(pos:Long) {
@@ -525,7 +549,7 @@ class MicVideoPlayer @JvmOverloads constructor(
 //    }
 
     fun pause() {
-        mPlayer.playWhenReady = false
+        mPlayer?.playWhenReady = false
     }
 
     fun seekTo(pos: Long) {
@@ -575,7 +599,7 @@ class MicVideoPlayer @JvmOverloads constructor(
      * mPlayer.seekTo()を直接呼び出してはいけない。
      */
     private fun playerSeek(pos:Long) {
-        mPlayer.seekTo(clipPos(pos))
+        mPlayer?.seekTo(clipPos(pos))
     }
 
     /**
@@ -662,7 +686,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(!mSeeking) {
                 mSeeking = true
                 mFastMode = true
-                mPlayer.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+                mPlayer?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
                 mSeekTarget = -1L
                 mThreshold = (duration * mPercent) / 100
                 mHandler.postDelayed(mLoop, 0)
@@ -708,7 +732,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(!mFastMode) {
                 UtLogger.debug("EXO-Seek: switch to fast seek")
                 mFastMode = true
-                mPlayer.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+                mPlayer?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
             }
             playerSeek(pos)
         }
@@ -718,7 +742,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(mFastMode) {
                 UtLogger.debug("EXO-Seek: switch to exact seek")
                 mFastMode = false
-                mPlayer.setSeekParameters(SeekParameters.EXACT)
+                mPlayer?.setSeekParameters(SeekParameters.EXACT)
             }
             playerSeek(pos)
         }
