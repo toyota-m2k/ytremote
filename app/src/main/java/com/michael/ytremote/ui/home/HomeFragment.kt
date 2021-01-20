@@ -1,34 +1,25 @@
 package com.michael.ytremote.ui.home
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.michael.ytremote.R
 import com.michael.ytremote.data.HostInfo
 import com.michael.ytremote.databinding.FragmentHomeBinding
-import com.michael.ytremote.model.VideoListViewModel
+import com.michael.ytremote.model.MainViewModel
 import com.michael.ytremote.player.FullscreenVideoActivity
 import com.michael.ytremote.player.MicVideoPlayer
-import com.michael.ytremote.utils.readBool
-import com.michael.ytremote.utils.writeBool
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
-    private lateinit var viewModel:VideoListViewModel
+    private lateinit var viewModel:MainViewModel
     private lateinit var binding:FragmentHomeBinding
     private lateinit var handlers:Handlers
 
@@ -42,8 +33,8 @@ class HomeFragment : Fragment() {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View? {
-        viewModel = VideoListViewModel.instanceFor(requireActivity())
+    ): View {
+        viewModel = MainViewModel.instanceFor(requireActivity())
         handlers = Handlers()
         binding = DataBindingUtil.inflate<FragmentHomeBinding>(inflater, R.layout.fragment_home, container, false).apply {
             lifecycleOwner = viewLifecycleOwner
@@ -62,6 +53,12 @@ class HomeFragment : Fragment() {
         viewModel.currentVideo.observe(viewLifecycleOwner) {
             videoUrl?.let { url ->
                 binding.playerView.url = url
+            }
+        }
+
+        binding.playerView.endReachedListener.add("homeFragment") {
+            CoroutineScope(Dispatchers.Main).launch {
+                handlers.onNext(null)
             }
         }
 
@@ -114,10 +111,11 @@ class HomeFragment : Fragment() {
     }
 
 
+    @Suppress("UNUSED_PARAMETER")
     inner class Handlers {
 
 
-        fun onNext(view:View) {
+        fun onNext(view:View?) {
             val list = viewModel.videoList.value ?: return
             val index = list.indexOf(viewModel.currentVideo.value) + 1
             if(index<list.count()) {
@@ -125,7 +123,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        fun onPrev(view:View) {
+        fun onPrev(view:View?) {
             val list = viewModel.videoList.value ?: return
             val index = list.indexOf(viewModel.currentVideo.value) - 1
             if(0<=index) {

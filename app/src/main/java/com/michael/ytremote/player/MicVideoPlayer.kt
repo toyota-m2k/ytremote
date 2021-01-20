@@ -132,6 +132,7 @@ class MicVideoPlayer @JvmOverloads constructor(
                 Player.STATE_ENDED -> {
                     mBindings.playerState = PlayerState.Paused
                     mEnded = playWhenReady       // 再生しながら動画ファイルの最後に達したことを覚えておく
+                    endReachedListener.invoke(this@MicVideoPlayer)
                 }
                 else -> {}
             }
@@ -385,6 +386,7 @@ class MicVideoPlayer @JvmOverloads constructor(
     val seekCompletedListener = Funcies2<MicVideoPlayer, Long, Unit>()
     val sizeChangedListener = Funcies3<MicVideoPlayer, Int, Int, Unit>()
     val clipChangedListener = Funcies2<MicVideoPlayer, MicClipping?, Unit>()
+    val endReachedListener = Funcies1<MicVideoPlayer,Unit>()
 
     // Properties
     val naturalDuration: Long

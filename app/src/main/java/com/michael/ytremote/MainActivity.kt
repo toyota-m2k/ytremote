@@ -6,25 +6,20 @@ import android.view.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
 import com.michael.ytremote.model.VideoItemViewModel
-import com.michael.ytremote.model.VideoListViewModel
+import com.michael.ytremote.model.MainViewModel
 import com.michael.ytremote.utils.lifecycleOwner
 
 class MainActivity : AppCompatActivity() {
@@ -34,12 +29,12 @@ class MainActivity : AppCompatActivity() {
 //    private lateinit var navController: NavController
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private lateinit var viewModel: VideoListViewModel
+    private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = VideoListViewModel.instanceFor(this)
+        viewModel = MainViewModel.instanceFor(this)
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main).apply {
             lifecycleOwner = this@MainActivity
             model = viewModel

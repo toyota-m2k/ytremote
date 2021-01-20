@@ -4,7 +4,7 @@ import androidx.lifecycle.*
 import com.michael.ytremote.data.*
 import kotlinx.coroutines.launch
 
-class VideoListViewModel : ViewModel() {
+class MainViewModel : ViewModel() {
     val rating = MutableLiveData<Rating>()
     val mark = MutableLiveData<Mark>()
     val category = MutableLiveData<String>()
@@ -30,8 +30,8 @@ class VideoListViewModel : ViewModel() {
     }
 
     companion object {
-        fun instanceFor(activity: ViewModelStoreOwner):VideoListViewModel {
-            return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(VideoListViewModel::class.java)
+        fun instanceFor(activity: ViewModelStoreOwner):MainViewModel {
+            return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(MainViewModel::class.java)
         }
     }
 }

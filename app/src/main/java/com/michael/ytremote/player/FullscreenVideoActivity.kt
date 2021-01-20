@@ -194,9 +194,9 @@ class FullscreenVideoActivity : AppCompatActivity() {
         /**
          * 閉じるボタン
          */
-        findViewById<ImageButton>(R.id.mic_ctr_close_button)?.let {
-            it.visibility = View.VISIBLE
-            it.setOnClickListener {
+        findViewById<ImageButton>(R.id.mic_ctr_close_button)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
                 // finish()
                 // ここは、本来、finish()でもよい（onStop が呼ばれて、その中で finishAndRemoveTask()を呼んでいるから）はずだし、Android 10 (Pixel) では、そのように動作したが、
                 // Android 9 （HUAWEI）では、アクティビティが残ってしまったので、ここでも、finishAndRemoveTask()を呼ぶようにする。
@@ -208,15 +208,15 @@ class FullscreenVideoActivity : AppCompatActivity() {
         /**
          * PinPボタン
          */
-        findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.let {
+        findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
             if (requestPinP && supportPinP) {     // PinPで起動後、全画面表示になるケースだけ、PinPボタンを表示する
-                it.visibility = View.VISIBLE
-                it.setOnClickListener {
+                visibility = View.VISIBLE
+                setOnClickListener {
                     requestPinP = true
                     enterPinP()
                 }
             } else {
-                it.visibility = View.GONE
+                visibility = View.GONE
             }
         }
         UtLogger.debug("##FullscreenVideoActivity.onCreate -- exit")
