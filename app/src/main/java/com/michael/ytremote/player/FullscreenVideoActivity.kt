@@ -209,7 +209,7 @@ class FullscreenVideoActivity : AppCompatActivity() {
          * PinPボタン
          */
         findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
-            if (requestPinP && supportPinP) {     // PinPで起動後、全画面表示になるケースだけ、PinPボタンを表示する
+            if (supportPinP) {     // PinPで起動後、全画面表示になるケースだけ、PinPボタンを表示する
                 visibility = View.VISIBLE
                 setOnClickListener {
                     requestPinP = true
