@@ -15,11 +15,11 @@ class VideoItemViewModel(private val videoItem:VideoItem, private val listModel:
     val id
         get() = videoItem.id
 
-    val isSelected: LiveData<Boolean> = listModel.currentVideo.map {
+    val isSelected: LiveData<Boolean> = listModel.appViewModel.currentVideo.map {
         it?.id == videoItem.id
     }
     fun onSelected(view: View) {
-        listModel.currentVideo.value = videoItem
+        listModel.appViewModel.currentVideo.value = videoItem
         viewModelScope.launch {
             delay(500)
             listModel.resetSidePanel.value = null

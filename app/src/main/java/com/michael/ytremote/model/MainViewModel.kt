@@ -3,7 +3,6 @@ package com.michael.ytremote.model
 import androidx.lifecycle.*
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.michael.ytremote.data.*
-import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel(), IPlayerOwner {
     val rating = MutableLiveData<Rating>()
@@ -16,14 +15,15 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         get() = appViewModel.loading
     val videoList : MutableLiveData<List<VideoItem>>
         get() = appViewModel.videoList
-    val currentVideo : MutableLiveData<VideoItem>
-        get() = appViewModel.currentVideo
-    var currentId:String? = null
+//    val currentVideo : MutableLiveData<VideoItem>
+//        get() = appViewModel.currentVideo
+//    var currentId:String? = null
 
     val player = MutableLiveData<SimpleExoPlayer>()
+    val hasPlayer = player.map { it != null }
 
     init {
-        appViewModel.registerPrimaryOwner(this)
+        appViewModel.attachPrimaryOwner(this)
     }
 
     override fun ownerAssigned(player: SimpleExoPlayer) {

@@ -21,33 +21,35 @@ class AppViewModel : ViewModel() {
     val videoList = MutableLiveData<List<VideoItem>>()
     val currentVideo = MutableLiveData<VideoItem>()
     var currentId:String? = null
-    private lateinit var player: SimpleExoPlayer
+    private var player: SimpleExoPlayer? = null
     private var primaryOwner :WeakReference<IPlayerOwner>? = null
     private var secondaryOwner :WeakReference<IPlayerOwner>? = null
 
-    fun registerPrimaryOwner(owner:IPlayerOwner) {
+    fun attachPrimaryOwner(owner:IPlayerOwner) {
         primaryOwner?.get()?.ownerResigned()
         secondaryOwner?.get()?.ownerResigned()
-        primaryOwner = WeakReference(owner.apply { ownerAssigned(player) })
+        primaryOwner = WeakReference(owner.apply { ownerAssigned(player!!) })
     }
 
-    fun getPlayer(owner:IPlayerOwner) {
+    fun retainPlayer(owner:IPlayerOwner) {
+        addRef()
         secondaryOwner?.get()?.ownerResigned()
         primaryOwner?.get()?.ownerResigned()
-        secondaryOwner = WeakReference(owner.apply {ownerAssigned(player)})
+        secondaryOwner = WeakReference(owner.apply {ownerAssigned(player!!)})
     }
 
     fun releasePlayer(owner:IPlayerOwner) {
         if(owner==secondaryOwner?.get()) {
             owner.ownerResigned()
             secondaryOwner = null
-            primaryOwner?.get()?.ownerAssigned(player)
+            primaryOwner?.get()?.ownerAssigned(player!!)
         }
+        release()
     }
 
     fun updateVideoList(retrieve:(suspend ()->List<VideoItem>?)) {
         viewModelScope.launch {
-            if(loading.value?:false) {
+            if(loading.value == true) {
                 return@launch
             }
             loading.value = true
@@ -56,6 +58,22 @@ class AppViewModel : ViewModel() {
                 videoList.value = list
             }
             loading.value = false
+        }
+    }
+
+    fun nextVideo() {
+        val list = videoList.value ?: return
+        val index = list.indexOf(currentVideo.value) + 1
+        if(index<list.count()) {
+            currentVideo.value = list[index]
+        }
+    }
+
+    fun prevVideo() {
+        val list = videoList.value ?: return
+        val index = list.indexOf(currentVideo.value) - 1
+        if(0<=index) {
+            currentVideo.value = list[index]
         }
     }
 
@@ -79,7 +97,8 @@ class AppViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        player.release()
+        player?.release()
+        player = null
     }
 
     companion object {

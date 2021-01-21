@@ -12,6 +12,7 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.google.android.exoplayer2.*
@@ -48,8 +49,6 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     // region Private Properties
 
-//    private val mPlayerHolder = ExoPlayerHolder.instanceFor(activity()!!)
-//    private val mPlayer = mPlayerHolder.player!! // SimpleExoPlayer = SimpleExoPlayer.Builder(context).build()
     private val appViewModel = AppViewModel.instance
     private var mPlayer:SimpleExoPlayer?=null
     private val mBindings = Bindings()
@@ -125,9 +124,6 @@ class MicVideoPlayer @JvmOverloads constructor(
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
         }
 
-//        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-//        }
-
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
 
             val ppn = {s:Int->
@@ -167,9 +163,19 @@ class MicVideoPlayer @JvmOverloads constructor(
         appViewModel.currentVideo.observe(lifecycleOwner()!!) { item->
             if(item!=null) {
                 if(item.id!=appViewModel.currentId) {
+                    appViewModel.currentId = item.id
                     setSource(Uri.parse(item.url), true, 0L)
                 }
             }
+        }
+
+        mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener { appViewModel.prevVideo() }
+        }
+        mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener { appViewModel.nextVideo() }
         }
 
         val sa = context.theme.obtainStyledAttributes(attrs,R.styleable.MicVideoPlayer,defStyleAttr,0)
@@ -194,7 +200,7 @@ class MicVideoPlayer @JvmOverloads constructor(
                 mBindings.playerView.useController = true
             }
 
-            // AmvExoVideoPlayerのサイズに合わせて、プレーヤーサイズを自動調整するかどうか
+            // ExoVideoPlayerのサイズに合わせて、プレーヤーサイズを自動調整するかどうか
             // 汎用的には、AmvExoVideoPlayer.setLayoutHint()を呼び出すことで動画プレーヤー画面のサイズを変更するが、
             // 実装によっては、この指定の方が便利なケースもありそう。
             //
@@ -210,7 +216,6 @@ class MicVideoPlayer @JvmOverloads constructor(
         mPlayer?.removeListener(mEventListener)
         mPlayer?.removeVideoListener(mVideoListener)
         mBindings.playerView.player = null
-//        mPlayer.release()
 
         sourceChangedListener.clear()
         videoPreparedListener.clear()
@@ -486,20 +491,6 @@ class MicVideoPlayer @JvmOverloads constructor(
     val clip:MicClipping?
         get() = mClipping
 
-    /**
-     * Uriを直接再生する
-     * （特殊用途向け・・・ExoPlayer単体で使い、イベントとか、あまり気にしない場合にのみ使えるかも）
-     */
-//    fun setUri(uri:Uri) {
-//        reset()
-//        val mediaSource = ExtractorMediaSource.Factory(        // ExtractorMediaSource ... non-adaptiveなほとんどのファイルに対応
-//                DefaultDataSourceFactory(context, "amv")    //
-//        ).createMediaSource(uri)
-//        mMediaSource = mediaSource
-//        mPlayer.prepare(mediaSource, true, true)
-//    }
-
-
     fun setSource(uri: Uri, autoPlay: Boolean, playFrom: Long) {
         val player = mPlayer ?: return
 
@@ -522,17 +513,6 @@ class MicVideoPlayer @JvmOverloads constructor(
         }
     }
 
-//    var url:String?
-//        get() = mSource?.toString()
-//        set(v) {
-//            if(v!=null) {
-//                mPlayerHolder.checkAndGo(v) {
-//                    setSource(Uri.parse(v), true, 0L)
-//                }
-//            }
-//        }
-
-
     fun play() {
         if(mEnded) {
             // 動画ファイルの最後まで再生して止まっている場合は、先頭にシークしてから再生を開始する
@@ -541,12 +521,6 @@ class MicVideoPlayer @JvmOverloads constructor(
         }
         mPlayer?.playWhenReady = true
     }
-
-//    fun playFrom(pos:Long) {
-//        mEnded = false
-//        playerSeek(pos)
-//        mPlayer.playWhenReady = true
-//    }
 
     fun pause() {
         mPlayer?.playWhenReady = false

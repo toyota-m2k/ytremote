@@ -22,4 +22,5 @@
     <string name="next_button">Next Movie</string>
     <string name="pinp_button">Picture in Picture</string>
     <string name="fullscreen_button">Full Screen</string>
+    <string name="no_player">PinP</string>
 </resources>

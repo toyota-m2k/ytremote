@@ -15,6 +15,10 @@ class BooApplication : Application(), ViewModelStoreOwner {
 
     init {
         instance_ = this
+    }
+
+    override fun onCreate() {
+        super.onCreate()
         AppViewModel.instance.refCount.observeForever { refCount->
             if(null!=refCount) {
                 if(refCount==0) {
