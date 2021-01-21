@@ -394,6 +394,10 @@ class MicVideoPlayer @JvmOverloads constructor(
             }
             errorMessageView.visibility = if (isError && errorMessage.isNotEmpty()) View.VISIBLE else View.INVISIBLE
             playerStateChangedListener.invoke(this@MicVideoPlayer, mPlayerState)
+
+            if(appViewModel.playing.value!=isPlaying) {
+                appViewModel.playing.value = isPlaying
+            }
         }
 
         fun setHintAndUpdateLayout(fitMode:FitMode, width:Float, height:Float) {

@@ -15,12 +15,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
 import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.model.MainViewModel
 import com.michael.ytremote.utils.lifecycleOwner
+import com.michael.ytremote.utils.setLayoutHeight
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +46,13 @@ class MainActivity : AppCompatActivity() {
 //        setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        viewModel.appViewModel.playing.observe(this) {
+            findViewById<AppBarLayout>(R.id.app_bar_layout)?.apply {
+                setExpanded(it==true, true)
+//                visibility = if (it==true) View.GONE else View.VISIBLE
+            }
+        }
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->

@@ -20,6 +20,7 @@ class AppViewModel : ViewModel() {
     val loading = MutableLiveData<Boolean>()
     val videoList = MutableLiveData<List<VideoItem>>()
     val currentVideo = MutableLiveData<VideoItem>()
+    val playing = MutableLiveData<Boolean>()
     var currentId:String? = null
     private var player: SimpleExoPlayer? = null
     private var primaryOwner :WeakReference<IPlayerOwner>? = null
