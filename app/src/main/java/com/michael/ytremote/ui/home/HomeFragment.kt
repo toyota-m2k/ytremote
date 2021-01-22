@@ -1,6 +1,7 @@
 package com.michael.ytremote.ui.home
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -71,14 +72,17 @@ class HomeFragment : Fragment() {
 //            visibility = View.VISIBLE
 //            setOnClickListener { viewModel.appViewModel.nextVideo() }
 //        }
-        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener { showFullScreenViewer(true) }
+        if(FullscreenVideoActivity.supportPinP) {
+            binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
+                visibility = View.VISIBLE
+                setOnClickListener { showFullScreenViewer(true) }
+            }
         }
-        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener{ showFullScreenViewer(false) }
-        }
+
+//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
+//            visibility = View.VISIBLE
+//            setOnClickListener{ showFullScreenViewer(false) }
+//        }
 
         return binding.root
     }

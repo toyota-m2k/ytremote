@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
+import kotlin.math.roundToInt
 
 inline fun <reified T> Context.findSpecialContext() : T? {
     var ctx = this
@@ -53,6 +54,21 @@ fun View.lifecycleOwner(): LifecycleOwner? {
     return context?.findSpecialContext()
 }
 
+fun Context.dp2px(dp:Float) : Float {
+    return resources.displayMetrics.density * dp
+}
+
+fun Context.dp2px(dp:Int) : Int {
+    return (resources.displayMetrics.density * dp).roundToInt()
+}
+
+fun Context.px2dp(px:Float) : Float {
+    return px / resources.displayMetrics.density
+}
+
+fun Context.px2dp(px:Int) : Int {
+    return px2dp(px.toFloat()).toInt()
+}
 
 
 fun View.setLayoutWidth(width:Int) {
@@ -79,7 +95,6 @@ fun View.setLayoutHeight(height:Int) {
     }
 }
 
-@Suppress("unused")
 fun View.getLayoutHeight() : Int {
     return if(layoutParams?.height ?: -1 >=0) {
         layoutParams.height
@@ -97,7 +112,6 @@ fun View.setLayoutSize(width:Int, height:Int) {
     }
 }
 
-@Suppress("unused")
 fun View.measureAndGetSize() : Size {
     this.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
     return Size(this.measuredWidth, this.measuredHeight)

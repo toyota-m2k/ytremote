@@ -1,5 +1,6 @@
 package com.michael.ytremote
 
+import android.animation.ValueAnimator
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
@@ -12,6 +13,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.animation.addListener
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +23,8 @@ import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
 import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.model.MainViewModel
+import com.michael.ytremote.utils.dp2px
+import com.michael.ytremote.utils.getLayoutHeight
 import com.michael.ytremote.utils.lifecycleOwner
 import com.michael.ytremote.utils.setLayoutHeight
 
@@ -47,19 +51,35 @@ class MainActivity : AppCompatActivity() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        viewModel.appViewModel.playing.observe(this) {
-//            toolbar.collapseActionView()
-            findViewById<AppBarLayout>(R.id.app_bar_layout)?.apply {
-                setExpanded(it==true, true)
-//                visibility = if (it==true) View.GONE else View.VISIBLE
-            }
-        }
-
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
+
+        viewModel.appViewModel.playing.observe(this) {
+//            toolbar.collapseActionView()
+            findViewById<AppBarLayout>(R.id.app_bar_layout)?.apply {
+//                setExpanded(it==true, true)
+
+//                val to = if(it==true) 0 else this@MainActivity.dp2px(64)
+//                val from = toolbar.measuredHeight
+//                ValueAnimator.ofInt(from,to).apply {
+//                    duration = 300
+//                    addUpdateListener { toolbar.setLayoutHeight(it.animatedValue as Int) }
+//                    start()
+//                }
+
+                val lastVisibility = if(it==true) View.INVISIBLE else View.VISIBLE
+                ValueAnimator.ofFloat(if(it==true) 1f else 0f, if(it==true) 0f else 1f).apply {
+                    duration = 300
+                    addUpdateListener { fab.alpha = it.animatedValue as Float }
+                    addListener { fab.visibility = lastVisibility }
+                    start()
+                }
+            }
+        }
+
         drawerLayout = findViewById(R.id.drawer_layout)
 //        val navView: NavigationView = findViewById(R.id.nav_view)
 //        navController = findNavController(R.id.nav_host_fragment)

@@ -41,8 +41,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
     }
 
     companion object {
-        var supportPinP:Boolean = true
-
+        val supportPinP:Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         const val KEY_PINP:String = "pinp"
         const val KEY_VIDEO_WIDTH = "videoWidth"
         const val KEY_VIDEO_HEIGHT = "videoHeight"
