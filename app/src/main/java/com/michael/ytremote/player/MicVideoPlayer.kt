@@ -55,7 +55,7 @@ class MicVideoPlayer @JvmOverloads constructor(
     private var mSource : Uri? = null
     private var mEnded : Boolean = false                // 動画ファイルの最後まで再生が終わって停止した状態から、Playボタンを押したときに、先頭から再生を開始する動作を実現するためのフラグ
     private var mMediaSource:MediaSource? = null
-    private var mClipping : MicClipping? = null
+    private var mClipping = MicClipping.empty
     private val mFitParent : Boolean
     private val mHandler : Handler by lazy {
         Handler(Looper.getMainLooper())
@@ -145,7 +145,10 @@ class MicVideoPlayer @JvmOverloads constructor(
                 Player.STATE_ENDED -> {
                     mBindings.playerState = PlayerState.Paused
                     mEnded = playWhenReady       // 再生しながら動画ファイルの最後に達したことを覚えておく
-                    endReachedListener.invoke(this@MicVideoPlayer)
+//                    endReachedListener.invoke(this@MicVideoPlayer)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        appViewModel.nextVideo()
+                    }
                 }
                 else -> {}
             }
@@ -164,7 +167,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(item!=null) {
                 if(item.id!=appViewModel.currentId) {
                     appViewModel.currentId = item.id
-                    setSource(Uri.parse(item.url), true, 0L)
+                    setSource(Uri.parse(item.url), item.clipping, true)
                 }
             }
         }
@@ -417,7 +420,6 @@ class MicVideoPlayer @JvmOverloads constructor(
     val seekCompletedListener = Funcies2<MicVideoPlayer, Long, Unit>()
     val sizeChangedListener = Funcies3<MicVideoPlayer, Int, Int, Unit>()
     val clipChangedListener = Funcies2<MicVideoPlayer, MicClipping?, Unit>()
-    val endReachedListener = Funcies1<MicVideoPlayer,Unit>()
 
     // Properties
     val naturalDuration: Long
@@ -478,29 +480,30 @@ class MicVideoPlayer @JvmOverloads constructor(
         mPlayer?.stop()
     }
 
-    fun setClip(clipping:MicClipping?) {
-        if(mClipping == clipping) {
-            return
-        }
-        mClipping = clipping
-        val source = createClippingSource()
-        if(null!=source) {
-            mPlayer?.prepare(source, true, true)
-            if(null!=clipping) {
-                playerSeek(clipping.start)
-            }
-        }
-    }
+//    fun setClip(clipping:MicClipping?) {
+//        if(mClipping == clipping) {
+//            return
+//        }
+//        mClipping = clipping
+//        val source = createClippingSource()
+//        if(null!=source) {
+//            mPlayer?.prepare(source, true, true)
+//            if(null!=clipping) {
+//                playerSeek(clipping.start)
+//            }
+//        }
+//    }
+//
+//    val clip:MicClipping?
+//        get() = mClipping
 
-    val clip:MicClipping?
-        get() = mClipping
-
-    fun setSource(uri: Uri, autoPlay: Boolean, playFrom: Long) {
+    fun setSource(uri: Uri, clipping:MicClipping, autoPlay: Boolean) {
         val player = mPlayer ?: return
 
         reset()
         mBindings.progressRing.visibility = View.VISIBLE
         mSource = uri
+        mClipping = clipping
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 sourceChangedListener.invoke(this@MicVideoPlayer, uri)
@@ -508,9 +511,9 @@ class MicVideoPlayer @JvmOverloads constructor(
                         DefaultDataSourceFactory(context, "amv")
                 ).createMediaSource(uri)
                 mMediaSource = mediaSource
-                player.prepare(createClippingSource(mediaSource), true, true)
-                if (null != mClipping || playFrom > 0) {
-                    playerSeek(playFrom)
+                player.prepare(createClippingSource(mediaSource, clipping), true, true)
+                if (clipping.start>0) {
+                    playerSeek(clipping.start)
                 }
                 player.playWhenReady = autoPlay
             }
@@ -569,7 +572,7 @@ class MicVideoPlayer @JvmOverloads constructor(
      * シーク位置をクリッピング範囲に制限する
      */
     private fun clipPos(pos:Long) : Long {
-        return mClipping?.clipPos(pos) ?: pos
+        return mClipping.clipPos(pos)
     }
 
     /**
@@ -584,24 +587,14 @@ class MicVideoPlayer @JvmOverloads constructor(
      * クリッピングソースを作成する
      * クリッピングが指定されていなければ、元のMediaSourceを返す
      */
-    private fun createClippingSource(orgSource:MediaSource) : MediaSource {
-        clipChangedListener.invoke(this, mClipping)
-        val clipping = mClipping
-        return if (null != clipping && clipping.isValid) {
+    private fun createClippingSource(orgSource:MediaSource, clipping:MicClipping) : MediaSource {
+        clipChangedListener.invoke(this, clipping)
+        return if (clipping.end>0) {
             // ClippingMediaSource に start をセットすると、IllegalClippingExceptionが出て使えないので、
             // endだけを指定し、startは、シークして使うようにする
             ClippingMediaSource(orgSource, 0/*clipping.start * 1000*/, clipping.end * 1000)
         } else {
             orgSource
-        }
-    }
-
-    private fun createClippingSource() : MediaSource? {
-        val orgSource = mMediaSource
-        return if(null==orgSource) {
-            null
-        } else {
-            createClippingSource(orgSource)
         }
     }
 

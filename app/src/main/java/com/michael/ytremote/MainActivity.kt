@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         viewModel.appViewModel.playing.observe(this) {
+//            toolbar.collapseActionView()
             findViewById<AppBarLayout>(R.id.app_bar_layout)?.apply {
                 setExpanded(it==true, true)
 //                visibility = if (it==true) View.GONE else View.VISIBLE

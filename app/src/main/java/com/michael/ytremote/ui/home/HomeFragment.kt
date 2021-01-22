@@ -57,11 +57,11 @@ class HomeFragment : Fragment() {
             binding.playerView.setPlayer(it)
         }
 
-        binding.playerView.endReachedListener.add("homeFragment") {
-            CoroutineScope(Dispatchers.Main).launch {
-                viewModel.appViewModel.nextVideo()
-            }
-        }
+//        binding.playerView.endReachedListener.add("homeFragment") {
+//            CoroutineScope(Dispatchers.Main).launch {
+//                viewModel.appViewModel.nextVideo()
+//            }
+//        }
 
 //        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
 //            visibility = View.VISIBLE
