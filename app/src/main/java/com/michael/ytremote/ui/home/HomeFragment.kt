@@ -79,10 +79,10 @@ class HomeFragment : Fragment() {
             }
         }
 
-//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
-//            visibility = View.VISIBLE
-//            setOnClickListener{ showFullScreenViewer(false) }
-//        }
+        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener{ showFullScreenViewer(false) }
+        }
 
         return binding.root
     }

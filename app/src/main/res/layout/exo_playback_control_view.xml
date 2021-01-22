@@ -21,7 +21,7 @@
 
         <ImageButton
             android:id="@+id/mic_ctr_exo_prev"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
@@ -31,7 +31,7 @@
 
         <ImageButton
             android:id="@+id/mic_ctr_exo_next"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
@@ -41,7 +41,7 @@
 
 <!--        <ImageButton-->
 <!--            android:id="@id/exo_rew"-->
-<!--            android:layout_width="@dimen/mic_media_button_height"-->
+<!--            android:layout_width="@dimen/mic_media_button_width"-->
 <!--            android:layout_height="@dimen/mic_media_button_height"-->
 <!--            android:background="?android:attr/selectableItemBackground"-->
 <!--            android:tint="@color/white"-->
@@ -58,7 +58,7 @@
 
         <ImageButton
             android:id="@id/exo_play"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
@@ -68,7 +68,7 @@
 
         <ImageButton
             android:id="@id/exo_pause"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
@@ -78,7 +78,7 @@
 
 <!--        <ImageButton-->
 <!--            android:id="@id/exo_ffwd"-->
-<!--            android:layout_width="@dimen/mic_media_button_height"-->
+<!--            android:layout_width="@dimen/mic_media_button_width"-->
 <!--            android:layout_height="@dimen/mic_media_button_height"-->
 <!--            android:background="?android:attr/selectableItemBackground"-->
 <!--            android:tint="@color/white"-->
@@ -88,7 +88,7 @@
 
         <ImageButton
             android:id="@+id/mic_ctr_pinp_button"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
@@ -98,7 +98,7 @@
 
         <ImageButton
             android:id="@+id/mic_ctr_full_button"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
@@ -108,7 +108,7 @@
 
         <ImageButton
             android:id="@+id/mic_ctr_close_button"
-            android:layout_width="@dimen/mic_media_button_height"
+            android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
             android:tint="@color/white"
