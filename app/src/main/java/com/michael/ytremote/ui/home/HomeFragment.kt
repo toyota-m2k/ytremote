@@ -1,6 +1,7 @@
 package com.michael.ytremote.ui.home
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,13 +22,12 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
     private lateinit var viewModel:MainViewModel
     private lateinit var binding:FragmentHomeBinding
-    private lateinit var handlers:Handlers
 
-    private val videoUrl:String?
-        get() {
-            val id = viewModel.currentVideo.value?.id ?: return null
-            return HostInfo.videoUrl(id)
-        }
+//    private val videoUrl:String?
+//        get() {
+//            val id = viewModel.currentVideo.value?.id ?: return null
+//            return HostInfo.videoUrl(id)
+//        }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -35,11 +35,9 @@ class HomeFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View {
         viewModel = MainViewModel.instanceFor(requireActivity())
-        handlers = Handlers()
         binding = DataBindingUtil.inflate<FragmentHomeBinding>(inflater, R.layout.fragment_home, container, false).apply {
             lifecycleOwner = viewLifecycleOwner
             model = viewModel
-            handler = handlers
         }
 
 //        homeViewModel =
@@ -50,50 +48,50 @@ class HomeFragment : Fragment() {
 //            textView.text = it
 //        })
 
-        viewModel.currentVideo.observe(viewLifecycleOwner) {
-            videoUrl?.let { url ->
-                binding.playerView.url = url
+//        viewModel.currentVideo.observe(viewLifecycleOwner) {
+//            videoUrl?.let { url ->
+//                binding.playerView.url = url
+//            }
+//        }
+
+        viewModel.player.observe(requireActivity()) {
+            binding.playerView.setPlayer(it)
+        }
+
+//        binding.playerView.endReachedListener.add("homeFragment") {
+//            CoroutineScope(Dispatchers.Main).launch {
+//                viewModel.appViewModel.nextVideo()
+//            }
+//        }
+
+//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
+//            visibility = View.VISIBLE
+//            setOnClickListener { viewModel.appViewModel.prevVideo() }
+//        }
+//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
+//            visibility = View.VISIBLE
+//            setOnClickListener { viewModel.appViewModel.nextVideo() }
+//        }
+        if(FullscreenVideoActivity.supportPinP) {
+            binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
+                visibility = View.VISIBLE
+                setOnClickListener { showFullScreenViewer(true) }
             }
         }
 
-        binding.playerView.endReachedListener.add("homeFragment") {
-            CoroutineScope(Dispatchers.Main).launch {
-                handlers.onNext(null)
-            }
-        }
-
-        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener(handlers::onPrev)
-        }
-        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener(handlers::onNext)
-        }
-        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener(handlers::onPinP)
-        }
-        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener(handlers::onFullscreen)
-        }
+//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_full_button)?.apply {
+//            visibility = View.VISIBLE
+//            setOnClickListener{ showFullScreenViewer(false) }
+//        }
 
         return binding.root
     }
 
     private fun showFullScreenViewer(pinp:Boolean) {
         val activity = requireActivity()
-        val source = videoUrl ?: return
         val player = binding.playerView
 
-        val position = player.seekPosition
-        val clipping = player.clip
-        val playing = player.playerState == MicVideoPlayer.PlayerState.Playing
         val intent = Intent(activity, FullscreenVideoActivity::class.java)
-        intent.putExtra(FullscreenVideoActivity.KEY_SOURCE, source)
-        intent.putExtra(FullscreenVideoActivity.KEY_POSITION, position)
-        intent.putExtra(FullscreenVideoActivity.KEY_PLAYING, playing)
         intent.putExtra(FullscreenVideoActivity.KEY_PINP, pinp)
         if(pinp) {
             val vs = player.videoSize
@@ -102,40 +100,8 @@ class HomeFragment : Fragment() {
                 intent.putExtra(FullscreenVideoActivity.KEY_VIDEO_HEIGHT, vs.height)
             }
         }
-        if(null!=clipping) {
-            intent.putExtra(FullscreenVideoActivity.KEY_CLIP_START, clipping.start)
-            intent.putExtra(FullscreenVideoActivity.KEY_CLIP_END, clipping.end)
-        }
         activity.startActivity(intent)
-        player.pause()
     }
 
 
-    @Suppress("UNUSED_PARAMETER")
-    inner class Handlers {
-
-
-        fun onNext(view:View?) {
-            val list = viewModel.videoList.value ?: return
-            val index = list.indexOf(viewModel.currentVideo.value) + 1
-            if(index<list.count()) {
-                viewModel.currentVideo.value = list[index]
-            }
-        }
-
-        fun onPrev(view:View?) {
-            val list = viewModel.videoList.value ?: return
-            val index = list.indexOf(viewModel.currentVideo.value) - 1
-            if(0<=index) {
-                viewModel.currentVideo.value = list[index]
-            }
-        }
-
-        fun onPinP(view:View) {
-            showFullScreenViewer(true)
-        }
-        fun onFullscreen(view:View) {
-            showFullScreenViewer(false)
-        }
-    }
 }

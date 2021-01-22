@@ -4,17 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
         <variable
             name="model"
             type="com.michael.ytremote.model.MainViewModel" />
-        <variable
-            name="handler"
-            type="com.michael.ytremote.ui.home.HomeFragment.Handlers" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/black"
         tools:context=".ui.home.HomeFragment">
 
         <com.michael.ytremote.player.MicVideoPlayer
@@ -27,63 +26,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/player_buttons"
-            />
-        <LinearLayout
-            android:id="@+id/player_buttons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/player_view"
             app:layout_constraintBottom_toBottomOf="parent"
-            >
-            <ImageButton
-                android:id="@+id/prev_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/ic_prev"
-                android:onClick="@{handler.onPrev}"
-                android:contentDescription="@string/prev_button"
-                android:background="?android:selectableItemBackground"/>
-            <ImageButton
-                android:id="@+id/next_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/ic_next"
-                android:onClick="@{handler.onNext}"
-                android:contentDescription="@string/next_button"
-                android:background="?android:selectableItemBackground"/>
-            <ImageButton
-                android:id="@+id/pinp_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/ic_pinp"
-                android:onClick="@{handler.onPinP}"
-                android:contentDescription="@string/pinp_button"
-                android:background="?android:selectableItemBackground"/>
-            <ImageButton
-                android:id="@+id/fullscreen_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/ic_fullscreen"
-                android:onClick="@{handler.onFullscreen}"
-                android:contentDescription="@string/fullscreen_button"
-                android:background="?android:selectableItemBackground"/>
+            />
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="#00000000"
+            android:src="@drawable/ic_unavailable"
+            app:tint="#808080"
+            app:layout_constraintStart_toStartOf="@id/player_view"
+            app:layout_constraintEnd_toEndOf="@+id/player_view"
+            app:layout_constraintTop_toTopOf="@+id/player_view"
+            app:layout_constraintBottom_toBottomOf="@+id/player_view"
+            android:visibility="@{model.hasPlayer ? View.GONE : View.VISIBLE}"
+            />
 
-        </LinearLayout>
-<!--        <com.google.android.exoplayer2.ui.PlayerView-->
-<!--            android:id="@+id/player_view"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"/>-->
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

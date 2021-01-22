@@ -38,7 +38,7 @@
                 android:background="@color/teal_700"
                 >
                 <ImageButton
-                    android:id="@+id/vct_playButton"
+                    android:id="@+id/reload_list_button"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:padding="2dp"
@@ -47,6 +47,7 @@
                     app:srcCompat="@drawable/ic_refresh"
                     android:contentDescription="@string/refresh"
                     android:background="?android:selectableItemBackground"
+                    android:onClick="@{()->model.update()}"
                     />
 
             </LinearLayout>

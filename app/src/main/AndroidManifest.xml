@@ -35,6 +35,7 @@
             android:label="@string/title_activity_fullscreen_video"
             android:launchMode="singleTask"
             android:clearTaskOnLaunch="true"
+            android:screenOrientation="landscape"
             tools:targetApi="n">
 
         </activity>

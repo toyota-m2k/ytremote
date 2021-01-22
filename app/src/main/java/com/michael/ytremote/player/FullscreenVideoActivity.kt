@@ -12,9 +12,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.drawable.Icon
-import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,14 +20,17 @@ import android.util.Rational
 import android.view.View
 import android.view.WindowInsets
 import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.michael.ytremote.R
+import com.michael.ytremote.model.AppViewModel
+import com.michael.ytremote.model.IPlayerOwner
 import com.michael.ytremote.utils.Funcies1
-import com.michael.ytremote.utils.Funcies2
 import com.michael.ytremote.utils.UtLogger
 import java.lang.ref.WeakReference
 
-class FullscreenVideoActivity : AppCompatActivity() {
+class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
     /**
      * FullscreenActivity の表示状態
      */
@@ -40,13 +41,7 @@ class FullscreenVideoActivity : AppCompatActivity() {
     }
 
     companion object {
-        var supportPinP:Boolean = true
-
-        const val KEY_SOURCE:String = "source"
-        const val KEY_POSITION:String = "position"
-        const val KEY_PLAYING:String = "playing"
-        const val KEY_CLIP_START:String = "start"
-        const val KEY_CLIP_END:String = "end"
+        val supportPinP:Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         const val KEY_PINP:String = "pinp"
         const val KEY_VIDEO_WIDTH = "videoWidth"
         const val KEY_VIDEO_HEIGHT = "videoHeight"
@@ -80,7 +75,6 @@ class FullscreenVideoActivity : AppCompatActivity() {
         //
         //  そこで、FullscreenVideoActivity実行中は、新たなPinPの実行を禁止し、FullscreenVideoActivityを閉じてから、
         //  次のPinPを開いてもらうこととする。
-        val stateListener = Funcies2<State, Uri?,Unit>()
         val currentActivityState:State
             get() = activityState.state
 
@@ -96,24 +90,19 @@ class FullscreenVideoActivity : AppCompatActivity() {
             var state:State = State.NONE
                 private set
             private var activity : WeakReference<FullscreenVideoActivity>? = null
-            private val source:Uri?
-                get() = activity?.get()?.mSource
 
             fun onCreated(activity:FullscreenVideoActivity) {
                 this.activity = WeakReference(activity)
                 this.state = State.FULL
-                stateListener.invoke(state, source)
             }
             fun onDestroy() {
                 if(activity!=null || state!=State.NONE) {
                     activity = null
                     state = State.NONE
-                    stateListener.invoke(state, null)
                 }
             }
             fun changeState(state:State) {
                 this.state = state
-                stateListener.invoke(state, source)
             }
 
             /**
@@ -140,7 +129,7 @@ class FullscreenVideoActivity : AppCompatActivity() {
         SEEK_TOP(3),
     }
 
-    private var mSource:Uri? = null
+//    private var mSource:Uri? = null
     private var closing:Boolean = false                     // ×ボタンでPinPが閉じられるときに true にセットされる
     private var requestPinP:Boolean = false                 // PinPへの遷移が要求されているか(intentで渡され、ユーザ操作によって変更される）
     private var reloadingPinP:Boolean = false               // onNewIntent()から、PinPへの移行が必要な場合にセットされる
@@ -155,6 +144,8 @@ class FullscreenVideoActivity : AppCompatActivity() {
         findViewById(R.id.fullscreen_root)
     }
 
+    var appViewModel:AppViewModel? = null
+
     /**
      * 構築
      */
@@ -164,6 +155,9 @@ class FullscreenVideoActivity : AppCompatActivity() {
 
         activityState.onCreated(this)
         setContentView(R.layout.activity_fullscreen_video)
+        appViewModel = AppViewModel.instance.apply {
+            retainPlayer(this@FullscreenVideoActivity )
+        }
 
         if (supportPinP) {
             fsa_player.playerStateChangedListener.add(handlerName) { _, state ->
@@ -209,7 +203,7 @@ class FullscreenVideoActivity : AppCompatActivity() {
          * PinPボタン
          */
         findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
-            if (requestPinP && supportPinP) {     // PinPで起動後、全画面表示になるケースだけ、PinPボタンを表示する
+            if (supportPinP) {     // PinPで起動後、全画面表示になるケースだけ、PinPボタンを表示する
                 visibility = View.VISIBLE
                 setOnClickListener {
                     requestPinP = true
@@ -228,8 +222,10 @@ class FullscreenVideoActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         activityState.onDestroy()
-        mSource = null
+//        mSource = null
         fsa_player.playerStateChangedListener.remove(handlerName)
+        appViewModel?.releasePlayer(this)
+        appViewModel = null
         UtLogger.debug("##FullscreenVideoActivity.onDestroy")
     }
 
@@ -255,19 +251,19 @@ class FullscreenVideoActivity : AppCompatActivity() {
      * onCreate / onNewIntent 共通の処理
      */
     private fun initWithIntent(intent:Intent) {
-        val source = intent.getStringExtra(KEY_SOURCE)
+//        val source = intent.getStringExtra(KEY_SOURCE)
         requestPinP = intent.getBooleanExtra(KEY_PINP, false)
-        if (null != source) {
-            val playing = intent.getBooleanExtra(KEY_PLAYING, false)
-            val position = intent.getLongExtra(KEY_POSITION, 0)
-            val start = intent.getLongExtra(KEY_CLIP_START, -1)
-            val end = intent.getLongExtra(KEY_CLIP_END, -1)
-            if (start >= 0) {
-                fsa_player.setClip(MicClipping(start, end))
-            }
-            mSource = Uri.parse(source)
-            fsa_player.setSource(mSource!!, playing, position)
-        }
+//        if (null != source) {
+//            val playing = intent.getBooleanExtra(KEY_PLAYING, false)
+//            val position = intent.getLongExtra(KEY_POSITION, 0)
+//            val start = intent.getLongExtra(KEY_CLIP_START, -1)
+//            val end = intent.getLongExtra(KEY_CLIP_END, -1)
+//            if (start >= 0) {
+//                fsa_player.setClip(MicClipping(start, end))
+//            }
+//            mSource = Uri.parse(source)
+//            fsa_player.setSource(mSource!!, playing, position)
+//        }
     }
 
     /**
@@ -389,9 +385,9 @@ class FullscreenVideoActivity : AppCompatActivity() {
     override fun onStop() {
         UtLogger.debug("##FullscreenVideoActivity.onStop")
         closing = true
-        intent.putExtra(KEY_PLAYING, fsa_player.isPlayingOrReservedToPlay)
-        intent.putExtra(KEY_POSITION, fsa_player.seekPosition)
-        fsa_player.pause()
+//        intent.putExtra(KEY_PLAYING, fsa_player.isPlayingOrReservedToPlay)
+//        intent.putExtra(KEY_POSITION, fsa_player.seekPosition)
+//        fsa_player.pause()
         super.onStop()
         onResultListener.invoke(intent)
         if(!isPinP) {
@@ -475,5 +471,13 @@ class FullscreenVideoActivity : AppCompatActivity() {
         } else {
             onEnterPinP()
         }
+    }
+
+    override fun ownerResigned() {
+        fsa_player.setPlayer(null)
+    }
+
+    override fun ownerAssigned(player: SimpleExoPlayer) {
+        fsa_player.setPlayer(player)
     }
 }

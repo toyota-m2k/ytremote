@@ -39,15 +39,15 @@
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_next" />
 
-        <ImageButton
-            android:id="@id/exo_rew"
-            android:layout_width="@dimen/mic_media_button_height"
-            android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
-            android:visibility="gone"
-            tools:visibility="visible"
-            app:srcCompat="@drawable/ic_rew" />
+<!--        <ImageButton-->
+<!--            android:id="@id/exo_rew"-->
+<!--            android:layout_width="@dimen/mic_media_button_height"-->
+<!--            android:layout_height="@dimen/mic_media_button_height"-->
+<!--            android:background="?android:attr/selectableItemBackground"-->
+<!--            android:tint="@color/white"-->
+<!--            android:visibility="gone"-->
+<!--            tools:visibility="visible"-->
+<!--            app:srcCompat="@drawable/ic_rew" />-->
 
         <!--<ImageButton android:id="@id/exo_shuffle"-->
         <!--style="@style/ExoMediaButton.Shuffle"/>-->
@@ -76,15 +76,15 @@
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_pause" />
 
-        <ImageButton
-            android:id="@id/exo_ffwd"
-            android:layout_width="@dimen/mic_media_button_height"
-            android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
-            android:visibility="gone"
-            tools:visibility="visible"
-            app:srcCompat="@drawable/ic_ffwd" />
+<!--        <ImageButton-->
+<!--            android:id="@id/exo_ffwd"-->
+<!--            android:layout_width="@dimen/mic_media_button_height"-->
+<!--            android:layout_height="@dimen/mic_media_button_height"-->
+<!--            android:background="?android:attr/selectableItemBackground"-->
+<!--            android:tint="@color/white"-->
+<!--            android:visibility="gone"-->
+<!--            tools:visibility="visible"-->
+<!--            app:srcCompat="@drawable/ic_ffwd" />-->
 
         <ImageButton
             android:id="@+id/mic_ctr_pinp_button"

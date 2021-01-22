@@ -12,6 +12,7 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.google.android.exoplayer2.*
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.video.VideoListener
 import com.michael.ytremote.R
+import com.michael.ytremote.model.AppViewModel
 import com.michael.ytremote.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,16 +49,28 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     // region Private Properties
 
-    private val mPlayerHolder = ExoPlayerHolder.instanceFor(activity()!!)
-    private val mPlayer = mPlayerHolder.player!! // SimpleExoPlayer = SimpleExoPlayer.Builder(context).build()
+    private val appViewModel = AppViewModel.instance
+    private var mPlayer:SimpleExoPlayer?=null
     private val mBindings = Bindings()
     private var mSource : Uri? = null
     private var mEnded : Boolean = false                // 動画ファイルの最後まで再生が終わって停止した状態から、Playボタンを押したときに、先頭から再生を開始する動作を実現するためのフラグ
     private var mMediaSource:MediaSource? = null
-    private var mClipping : MicClipping? = null
+    private var mClipping = MicClipping.empty
     private val mFitParent : Boolean
     private val mHandler : Handler by lazy {
         Handler(Looper.getMainLooper())
+    }
+
+    fun setPlayer(player:SimpleExoPlayer?) {
+        mBindings.playerView.player = player
+        if(player!=null) {
+            player.addListener(mEventListener)
+            player.addVideoListener(mVideoListener)
+        } else {
+            mPlayer?.removeListener(mEventListener)
+            mPlayer?.removeVideoListener(mVideoListener)
+        }
+        mPlayer = player
     }
 
     // endregion
@@ -94,8 +108,10 @@ class MicVideoPlayer @JvmOverloads constructor(
 
         override fun onLoadingChanged(isLoading: Boolean) {
             UtLogger.debug("EXO: loading = $isLoading")
-            if(isLoading && mPlayer.playbackState==Player.STATE_BUFFERING) {
-                mBindings.playerState = PlayerState.Loading
+            mPlayer?.also { player->
+                if(isLoading && player.playbackState==Player.STATE_BUFFERING) {
+                    mBindings.playerState = PlayerState.Loading
+                }
             }
         }
 
@@ -107,9 +123,6 @@ class MicVideoPlayer @JvmOverloads constructor(
 
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
         }
-
-//        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-//        }
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
 
@@ -132,7 +145,10 @@ class MicVideoPlayer @JvmOverloads constructor(
                 Player.STATE_ENDED -> {
                     mBindings.playerState = PlayerState.Paused
                     mEnded = playWhenReady       // 再生しながら動画ファイルの最後に達したことを覚えておく
-                    endReachedListener.invoke(this@MicVideoPlayer)
+//                    endReachedListener.invoke(this@MicVideoPlayer)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        appViewModel.nextVideo()
+                    }
                 }
                 else -> {}
             }
@@ -145,10 +161,25 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     init {
         LayoutInflater.from(context).inflate(R.layout.video_exo_player, this)
-        mBindings.playerView.player = mPlayer
-        mPlayer.addListener(mEventListener)
-        mPlayer.addVideoListener(mVideoListener)
         isSaveFromParentEnabled = false
+
+        appViewModel.currentVideo.observe(lifecycleOwner()!!) { item->
+            if(item!=null) {
+                if(item.id!=appViewModel.currentId) {
+                    appViewModel.currentId = item.id
+                    setSource(Uri.parse(item.url), item.clipping, true)
+                }
+            }
+        }
+
+        mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener { appViewModel.prevVideo() }
+        }
+        mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener { appViewModel.nextVideo() }
+        }
 
         val sa = context.theme.obtainStyledAttributes(attrs,R.styleable.MicVideoPlayer,defStyleAttr,0)
         try {
@@ -172,7 +203,7 @@ class MicVideoPlayer @JvmOverloads constructor(
                 mBindings.playerView.useController = true
             }
 
-            // AmvExoVideoPlayerのサイズに合わせて、プレーヤーサイズを自動調整するかどうか
+            // ExoVideoPlayerのサイズに合わせて、プレーヤーサイズを自動調整するかどうか
             // 汎用的には、AmvExoVideoPlayer.setLayoutHint()を呼び出すことで動画プレーヤー画面のサイズを変更するが、
             // 実装によっては、この指定の方が便利なケースもありそう。
             //
@@ -185,10 +216,9 @@ class MicVideoPlayer @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
-        mPlayer.removeListener(mEventListener)
-        mPlayer.removeVideoListener(mVideoListener)
+        mPlayer?.removeListener(mEventListener)
+        mPlayer?.removeVideoListener(mVideoListener)
         mBindings.playerView.player = null
-//        mPlayer.release()
 
         sourceChangedListener.clear()
         videoPreparedListener.clear()
@@ -367,6 +397,10 @@ class MicVideoPlayer @JvmOverloads constructor(
             }
             errorMessageView.visibility = if (isError && errorMessage.isNotEmpty()) View.VISIBLE else View.INVISIBLE
             playerStateChangedListener.invoke(this@MicVideoPlayer, mPlayerState)
+
+            if(appViewModel.playing.value!=isPlaying) {
+                appViewModel.playing.value = isPlaying
+            }
         }
 
         fun setHintAndUpdateLayout(fitMode:FitMode, width:Float, height:Float) {
@@ -386,22 +420,21 @@ class MicVideoPlayer @JvmOverloads constructor(
     val seekCompletedListener = Funcies2<MicVideoPlayer, Long, Unit>()
     val sizeChangedListener = Funcies3<MicVideoPlayer, Int, Int, Unit>()
     val clipChangedListener = Funcies2<MicVideoPlayer, MicClipping?, Unit>()
-    val endReachedListener = Funcies1<MicVideoPlayer,Unit>()
 
     // Properties
     val naturalDuration: Long
-        get() = mPlayer.duration
+        get() = mPlayer?.duration ?: 0
 
     val seekPosition: Long
-        get() = mPlayer.currentPosition
+        get() = mPlayer?.currentPosition ?: 0
 
     var isMuted:Boolean
-        get() = mPlayer.volume != 0f
+        get() = mPlayer?.volume != 0f
         set(v) {
             if(v) {
-                mPlayer.volume = 0f
+                mPlayer?.volume = 0f
             } else {
-                mPlayer.volume = 1f
+                mPlayer?.volume = 1f
             }
         }
 
@@ -410,7 +443,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         get() = mBindings.playerState
 
     val isPlayingOrReservedToPlay : Boolean
-        get() = mBindings.isPlaying || mPlayer.playWhenReady
+        get() = mBindings.isPlaying || mPlayer?.playWhenReady ?: false
 
     val videoSize: Size
         get() = mBindings.videoSize
@@ -444,44 +477,33 @@ class MicVideoPlayer @JvmOverloads constructor(
         mSource = null
         mEnded = false
         mBindings.reset()
-        mPlayer.stop()
+        mPlayer?.stop()
     }
 
-    fun setClip(clipping:MicClipping?) {
-        if(mClipping == clipping) {
-            return
-        }
-        mClipping = clipping
-        val source = createClippingSource()
-        if(null!=source) {
-            mPlayer.prepare(source, true, true)
-            if(null!=clipping) {
-                playerSeek(clipping.start)
-            }
-        }
-    }
-
-    val clip:MicClipping?
-        get() = mClipping
-
-    /**
-     * Uriを直接再生する
-     * （特殊用途向け・・・ExoPlayer単体で使い、イベントとか、あまり気にしない場合にのみ使えるかも）
-     */
-//    fun setUri(uri:Uri) {
-//        reset()
-//        val mediaSource = ExtractorMediaSource.Factory(        // ExtractorMediaSource ... non-adaptiveなほとんどのファイルに対応
-//                DefaultDataSourceFactory(context, "amv")    //
-//        ).createMediaSource(uri)
-//        mMediaSource = mediaSource
-//        mPlayer.prepare(mediaSource, true, true)
+//    fun setClip(clipping:MicClipping?) {
+//        if(mClipping == clipping) {
+//            return
+//        }
+//        mClipping = clipping
+//        val source = createClippingSource()
+//        if(null!=source) {
+//            mPlayer?.prepare(source, true, true)
+//            if(null!=clipping) {
+//                playerSeek(clipping.start)
+//            }
+//        }
 //    }
+//
+//    val clip:MicClipping?
+//        get() = mClipping
 
+    fun setSource(uri: Uri, clipping:MicClipping, autoPlay: Boolean) {
+        val player = mPlayer ?: return
 
-    fun setSource(uri: Uri, autoPlay: Boolean, playFrom: Long) {
         reset()
         mBindings.progressRing.visibility = View.VISIBLE
         mSource = uri
+        mClipping = clipping
         CoroutineScope(Dispatchers.Default).launch {
             withContext(Dispatchers.Main) {
                 sourceChangedListener.invoke(this@MicVideoPlayer, uri)
@@ -489,25 +511,14 @@ class MicVideoPlayer @JvmOverloads constructor(
                         DefaultDataSourceFactory(context, "amv")
                 ).createMediaSource(uri)
                 mMediaSource = mediaSource
-                mPlayer.prepare(createClippingSource(mediaSource), true, true)
-                if (null != mClipping || playFrom > 0) {
-                    playerSeek(playFrom)
+                player.prepare(createClippingSource(mediaSource, clipping), true, true)
+                if (clipping.start>0) {
+                    playerSeek(clipping.start)
                 }
-                mPlayer.playWhenReady = autoPlay
+                player.playWhenReady = autoPlay
             }
         }
     }
-
-    var url:String?
-        get() = mSource?.toString()
-        set(v) {
-            if(v!=null) {
-                mPlayerHolder.checkAndGo(v) {
-                    setSource(Uri.parse(v), true, 0L)
-                }
-            }
-        }
-
 
     fun play() {
         if(mEnded) {
@@ -515,17 +526,11 @@ class MicVideoPlayer @JvmOverloads constructor(
             mEnded = false
             playerSeek(0)
         }
-        mPlayer.playWhenReady = true
+        mPlayer?.playWhenReady = true
     }
 
-//    fun playFrom(pos:Long) {
-//        mEnded = false
-//        playerSeek(pos)
-//        mPlayer.playWhenReady = true
-//    }
-
     fun pause() {
-        mPlayer.playWhenReady = false
+        mPlayer?.playWhenReady = false
     }
 
     fun seekTo(pos: Long) {
@@ -567,7 +572,7 @@ class MicVideoPlayer @JvmOverloads constructor(
      * シーク位置をクリッピング範囲に制限する
      */
     private fun clipPos(pos:Long) : Long {
-        return mClipping?.clipPos(pos) ?: pos
+        return mClipping.clipPos(pos)
     }
 
     /**
@@ -575,31 +580,21 @@ class MicVideoPlayer @JvmOverloads constructor(
      * mPlayer.seekTo()を直接呼び出してはいけない。
      */
     private fun playerSeek(pos:Long) {
-        mPlayer.seekTo(clipPos(pos))
+        mPlayer?.seekTo(clipPos(pos))
     }
 
     /**
      * クリッピングソースを作成する
      * クリッピングが指定されていなければ、元のMediaSourceを返す
      */
-    private fun createClippingSource(orgSource:MediaSource) : MediaSource {
-        clipChangedListener.invoke(this, mClipping)
-        val clipping = mClipping
-        return if (null != clipping && clipping.isValid) {
+    private fun createClippingSource(orgSource:MediaSource, clipping:MicClipping) : MediaSource {
+        clipChangedListener.invoke(this, clipping)
+        return if (clipping.end>0) {
             // ClippingMediaSource に start をセットすると、IllegalClippingExceptionが出て使えないので、
             // endだけを指定し、startは、シークして使うようにする
             ClippingMediaSource(orgSource, 0/*clipping.start * 1000*/, clipping.end * 1000)
         } else {
             orgSource
-        }
-    }
-
-    private fun createClippingSource() : MediaSource? {
-        val orgSource = mMediaSource
-        return if(null==orgSource) {
-            null
-        } else {
-            createClippingSource(orgSource)
         }
     }
 
@@ -662,7 +657,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(!mSeeking) {
                 mSeeking = true
                 mFastMode = true
-                mPlayer.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+                mPlayer?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
                 mSeekTarget = -1L
                 mThreshold = (duration * mPercent) / 100
                 mHandler.postDelayed(mLoop, 0)
@@ -708,7 +703,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(!mFastMode) {
                 UtLogger.debug("EXO-Seek: switch to fast seek")
                 mFastMode = true
-                mPlayer.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+                mPlayer?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
             }
             playerSeek(pos)
         }
@@ -718,7 +713,7 @@ class MicVideoPlayer @JvmOverloads constructor(
             if(mFastMode) {
                 UtLogger.debug("EXO-Seek: switch to exact seek")
                 mFastMode = false
-                mPlayer.setSeekParameters(SeekParameters.EXACT)
+                mPlayer?.setSeekParameters(SeekParameters.EXACT)
             }
             playerSeek(pos)
         }
