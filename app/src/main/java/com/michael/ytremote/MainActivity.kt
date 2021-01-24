@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
+import android.widget.Space
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -13,6 +14,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.addListener
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,33 +25,55 @@ import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
 import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.model.MainViewModel
-import com.michael.ytremote.utils.dp2px
-import com.michael.ytremote.utils.getLayoutHeight
-import com.michael.ytremote.utils.lifecycleOwner
-import com.michael.ytremote.utils.setLayoutHeight
+import com.michael.ytremote.utils.*
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var drawerLayout: DrawerLayout
-//    private lateinit var navController: NavController
-    private lateinit var drawerToggle: ActionBarDrawerToggle
-
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
+    private lateinit var handlers:Handlers
+    private lateinit var drawerAnim :AnimPack
+    private lateinit var toolbarAnim :AnimPack
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = MainViewModel.instanceFor(this)
+        handlers = Handlers()
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main).apply {
             lifecycleOwner = this@MainActivity
             model = viewModel
-            // handler = ...
+            handler = this@MainActivity.handlers
         }
-
-//        setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        drawerAnim = AnimPack().apply {
+            addAnim(binding.micSpacer, 240f, 0f) {o,v->
+                (o as View).setLayoutWidth(dp2px(v.toInt()))
+            }
+            addAnim(binding.micDrawerGuard, 0.5f, 0f) {o,v->
+                (o as View).alpha = v
+            }
+            onStart = { show->
+                if(show) {
+                    binding.micDrawerGuard.visibility = View.VISIBLE
+                }
+            }
+            onCompleted = { show ->
+                if(!show) {
+                    binding.micDrawerGuard.visibility = View.GONE
+                }
+            }
+        }
+        toolbarAnim = AnimPack().apply {
+            addAnim(binding.micSpacer, 40f, 0f) {o,v->
+                (o as View).setLayoutHeight(dp2px(v.toInt()))
+            }
+            onCompleted = { show ->
+                val va = VisibilityAnimPack().apply {
+                    addView(binding.fab)
+                    addView(binding.micOpenToolbar,true)
+                    animate(show)
+                }
+            }
+        }
+        binding.micOpenToolbar.visibility = View.VISIBLE
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
@@ -58,40 +82,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.appViewModel.playing.observe(this) {
-//            toolbar.collapseActionView()
-            findViewById<AppBarLayout>(R.id.app_bar_layout)?.apply {
-//                setExpanded(it==true, true)
-
-//                val to = if(it==true) 0 else this@MainActivity.dp2px(64)
-//                val from = toolbar.measuredHeight
-//                ValueAnimator.ofInt(from,to).apply {
-//                    duration = 300
-//                    addUpdateListener { toolbar.setLayoutHeight(it.animatedValue as Int) }
-//                    start()
-//                }
-
-                val lastVisibility = if(it==true) View.INVISIBLE else View.VISIBLE
-                ValueAnimator.ofFloat(if(it==true) 1f else 0f, if(it==true) 0f else 1f).apply {
-                    duration = 300
-                    addUpdateListener { fab.alpha = it.animatedValue as Float }
-                    addListener { fab.visibility = lastVisibility }
-                    start()
-                }
-            }
         }
-
-        drawerLayout = findViewById(R.id.drawer_layout)
-//        val navView: NavigationView = findViewById(R.id.nav_view)
-//        navController = findNavController(R.id.nav_host_fragment)
-        drawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
-        drawerLayout.addDrawerListener(drawerToggle)
-
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-//        appBarConfiguration = AppBarConfiguration(setOf(
-//                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
-//        setupActionBarWithNavController(navController, appBarConfiguration)
-//        navView.setupWithNavController(navController)
 
         binding.videoList.run {
             adapter = ListAdapter()
@@ -102,40 +93,27 @@ class MainActivity : AppCompatActivity() {
             (binding.videoList.adapter as? ListAdapter)?.items = it
         }
         viewModel.resetSidePanel.observe(this){
-            drawerLayout.closeDrawer(binding.navDrawer)
+            handlers.showDrawer(false)
         }
-
+        viewModel.playOnMainPlayer.observe(this) {
+            toolbarAnim.animate(!(it==true))
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        drawerToggle.syncState()
         if(savedInstanceState==null) {
             viewModel.update()
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        drawerToggle.onConfigurationChanged(newConfig)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(drawerToggle.onOptionsItemSelected(item)) {
-            return true
+    inner class Handlers {
+        fun showDrawer(show:Boolean) {
+            drawerAnim.animate(show)
         }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        fun showToolbar(show:Boolean) {
+            binding.micSpacer.setLayoutHeight(if(show) dp2px(40) else 0)
+        }
     }
 
     inner class ViewHolder(private val binding:ListItemBinding) : RecyclerView.ViewHolder(binding.root) {

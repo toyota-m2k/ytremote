@@ -20,7 +20,7 @@
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:playOnTouch="true"
+            app:playOnTouch="false"
             app:showControlBar="true"
             app:fitParent="true"
             app:layout_constraintStart_toStartOf="parent"
