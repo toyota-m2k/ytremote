@@ -31,8 +31,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var handlers:Handlers
-    private lateinit var drawerAnim :AnimPack
-    private lateinit var toolbarAnim :AnimPack
+    private lateinit var drawerAnim :AnimSet
+    private lateinit var toolbarAnim :AnimSequence
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,35 +43,18 @@ class MainActivity : AppCompatActivity() {
             model = viewModel
             handler = this@MainActivity.handlers
         }
-        drawerAnim = AnimPack().apply {
-            addAnim(binding.micSpacer, 240f, 0f) {o,v->
-                (o as View).setLayoutWidth(dp2px(v.toInt()))
-            }
-            addAnim(binding.micDrawerGuard, 0.5f, 0f) {o,v->
-                (o as View).alpha = v
-            }
-            onStart = { show->
-                if(show) {
-                    binding.micDrawerGuard.visibility = View.VISIBLE
-                }
-            }
-            onCompleted = { show ->
-                if(!show) {
-                    binding.micDrawerGuard.visibility = View.GONE
-                }
-            }
+        drawerAnim = AnimSet().apply {
+            add(ViewSizeAnimChip(binding.micSpacer, 240, 0, height=false))
+            add(ViewVisibilityAnimationChip(binding.micDrawerGuard, true, false, true, 0.5f))
         }
-        toolbarAnim = AnimPack().apply {
-            addAnim(binding.micSpacer, 40f, 0f) {o,v->
-                (o as View).setLayoutHeight(dp2px(v.toInt()))
-            }
-            onCompleted = { show ->
-                val va = VisibilityAnimPack().apply {
-                    addView(binding.fab)
-                    addView(binding.micOpenToolbar,true)
-                    animate(show)
-                }
-            }
+        toolbarAnim = AnimSequence().apply {
+            add( AnimSet().apply {
+                add(ViewSizeAnimChip(binding.micSpacer, 40, 0, height = true))
+            })
+            add(AnimSet().apply{
+                add(ViewVisibilityAnimationChip(binding.micOpenToolbar, false,true))
+                add(ViewVisibilityAnimationChip(binding.fab, true, false))
+            })
         }
         binding.micOpenToolbar.visibility = View.VISIBLE
 
@@ -111,9 +94,9 @@ class MainActivity : AppCompatActivity() {
         fun showDrawer(show:Boolean) {
             drawerAnim.animate(show)
         }
-        fun showToolbar(show:Boolean) {
-            binding.micSpacer.setLayoutHeight(if(show) dp2px(40) else 0)
-        }
+//        fun showToolbar(show:Boolean) {
+//            toolbarAnim.animate(show)
+//        }
     }
 
     inner class ViewHolder(private val binding:ListItemBinding) : RecyclerView.ViewHolder(binding.root) {

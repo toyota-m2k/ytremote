@@ -19,7 +19,7 @@ interface IAnimChip {
 }
 
 interface IAnimEngine {
-    fun animate(reverse: Boolean, completed:((Boolean)->Unit)?)
+    fun animate(reverse: Boolean, completed:((Boolean)->Unit)?=null)
     fun cancel()
 }
 
@@ -66,7 +66,7 @@ class ViewVisibilityAnimationChip<O>(private val target:O, private val startVisi
     }
 }
 
-class AnimSet(private val duration:Long) : AbstractAnimChip(), IAnimEngine {
+class AnimSet(private val duration:Long=300L) : AbstractAnimChip(), IAnimEngine {
     private val list:MutableList<IAnimChip> = mutableListOf()
     private var activeAnimator: ValueAnimator? = null
     private var next:Boolean? = null
