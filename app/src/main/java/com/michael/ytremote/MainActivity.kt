@@ -45,18 +45,18 @@ class MainActivity : AppCompatActivity() {
         }
         drawerAnim = AnimSet().apply {
             add(ViewSizeAnimChip(binding.micSpacer, 240, 0, height=false))
-            add(ViewVisibilityAnimationChip(binding.micDrawerGuard, true, false, true, 0.5f))
+            add(ViewVisibilityAnimationChip(binding.micDrawerGuard, true, false, true, 0.6f))
         }
         toolbarAnim = AnimSequence().apply {
             add( AnimSet().apply {
                 add(ViewSizeAnimChip(binding.micSpacer, 40, 0, height = true))
+                add(ViewVisibilityAnimationChip(binding.fab, true, false))
             })
             add(AnimSet().apply{
                 add(ViewVisibilityAnimationChip(binding.micOpenToolbar, false,true))
-                add(ViewVisibilityAnimationChip(binding.fab, true, false))
             })
         }
-        binding.micOpenToolbar.visibility = View.VISIBLE
+//        binding.micOpenToolbar.visibility = View.VISIBLE
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
@@ -79,7 +79,15 @@ class MainActivity : AppCompatActivity() {
             handlers.showDrawer(false)
         }
         viewModel.playOnMainPlayer.observe(this) {
-            toolbarAnim.animate(!(it==true))
+            if(it==true) {
+                if(binding.fab.visibility==View.VISIBLE) {
+                    toolbarAnim.animate(false)
+                }
+            } else {
+                if(binding.fab.visibility!=View.VISIBLE) {
+                    toolbarAnim.animate(true)
+                }
+            }
         }
     }
 
