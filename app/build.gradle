@@ -53,6 +53,7 @@ dependencies {
     implementation "io.reactivex.rxjava3:rxkotlin:$rx_kotlin_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
     implementation "androidx.recyclerview:recyclerview:$recycle_view_version"
+    implementation 'androidx.preference:preference:1.1.1'
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
