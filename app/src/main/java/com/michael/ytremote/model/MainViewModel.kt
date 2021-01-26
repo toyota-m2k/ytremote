@@ -21,6 +21,9 @@ class MainViewModel : ViewModel(), IPlayerOwner {
 
     val player = MutableLiveData<SimpleExoPlayer>()
     val hasPlayer = player.map { it != null }
+    val playOnMainPlayer = hasPlayer.combineLatest(appViewModel.playing) {hasPlayer, playing->
+        hasPlayer == true && playing == true
+    }
 
     init {
         appViewModel.attachPrimaryOwner(this)
