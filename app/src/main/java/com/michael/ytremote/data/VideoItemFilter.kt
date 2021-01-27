@@ -17,6 +17,12 @@ enum class Mark(val v:Int) {
     MARK_HEART(3),
 }
 
+enum class SourceType(val v:Int) {
+    SOURCE_DB(0),
+    SOURCE_LISTED(1),
+    SOURCE_SELECTED(2),
+}
+
 data class VideoItemFilter(val rating:Rating?=null, val mark:Mark?=null, val category:String?=null) {
     private fun getQueryString():String {
         val qb = QueryBuilder()

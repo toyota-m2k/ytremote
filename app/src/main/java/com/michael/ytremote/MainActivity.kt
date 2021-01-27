@@ -1,6 +1,7 @@
 package com.michael.ytremote
 
 import android.animation.ValueAnimator
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
@@ -105,6 +106,10 @@ class MainActivity : AppCompatActivity() {
 //        fun showToolbar(show:Boolean) {
 //            toolbarAnim.animate(show)
 //        }
+
+        fun openSetting() {
+            startActivity(Intent(this@MainActivity, SettingActivity::class.java))
+        }
     }
 
     inner class ViewHolder(private val binding:ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
