@@ -8,7 +8,7 @@ class MainViewModel : ViewModel(), IPlayerOwner {
     val rating = MutableLiveData<Rating>()
     val mark = MutableLiveData<Mark>()
     val category = MutableLiveData<String>()
-    val resetSidePanel = MutableLiveData<Any>()
+    val showSidePanel = MutableLiveData<Boolean>(true)
 
     val appViewModel = AppViewModel.instance.apply { addRef() }
     val busy : MutableLiveData<Boolean>
@@ -21,8 +21,8 @@ class MainViewModel : ViewModel(), IPlayerOwner {
 
     val player = MutableLiveData<SimpleExoPlayer>()
     val hasPlayer = player.map { it != null }
-    val playOnMainPlayer = hasPlayer.combineLatest(appViewModel.playing) {hasPlayer, playing->
-        hasPlayer == true && playing == true
+    val playOnMainPlayer = hasPlayer.combineLatest(appViewModel.playing, appViewModel.videoList) {hasPlayer, playing, list->
+        hasPlayer == true && playing == true && list != null
     }
 
     init {

@@ -29,7 +29,7 @@ class VideoItemViewModel(private val videoItem:VideoItem, private val listModel:
         listModel.appViewModel.currentVideo.value = videoItem
         viewModelScope.launch {
             delay(500)
-            listModel.resetSidePanel.value = null
+            listModel.showSidePanel.value = false
         }
     }
 }

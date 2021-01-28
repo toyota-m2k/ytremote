@@ -57,6 +57,15 @@ fun <T,T1,R> LiveData<T>.combineLatest(src2: LiveData<T1>, fn:(T?, T1?)->R?): Li
     }
 }
 
+fun <T,T1,T2, R> LiveData<T>.combineLatest(src2: LiveData<T1>, src3:LiveData<T2>, fn:(T?, T1?, T2?)->R?): LiveData<R> {
+    val src = this;
+    return MediatorLiveData<R>().also { med ->
+        med.addSource(src) { med.value = fn(it, src2.value, src3.value) }
+        med.addSource(src2) { med.value = fn(src.value, it, src3.value) }
+        med.addSource(src3) { med.value = fn(src.value, src2.value, it) }
+    }
+}
+
 @ExperimentalCoroutinesApi
 fun <T> LiveData<T>.asFlow(): Flow<T?> = callbackFlow {
     offer(value)

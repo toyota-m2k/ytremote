@@ -27,6 +27,9 @@ import com.michael.ytremote.databinding.ListItemBinding
 import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.model.MainViewModel
 import com.michael.ytremote.utils.*
+import kotlinx.coroutines.*
+import java.util.*
+import kotlin.coroutines.coroutineContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -65,8 +68,8 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }
 
-        viewModel.appViewModel.playing.observe(this) {
-        }
+//        viewModel.appViewModel.playing.observe(this) {
+//        }
 
         binding.videoList.run {
             adapter = ListAdapter()
@@ -76,21 +79,44 @@ class MainActivity : AppCompatActivity() {
         viewModel.videoList.observe(this) {
             (binding.videoList.adapter as? ListAdapter)?.items = it
         }
-        viewModel.resetSidePanel.observe(this){
-            handlers.showDrawer(false)
+        viewModel.showSidePanel.observe(this){
+            drawerAnim.animate(it==true)
         }
+        val med = ToolbarAnimationMediator()
         viewModel.playOnMainPlayer.observe(this) {
             if(it==true) {
-                if(binding.fab.visibility==View.VISIBLE) {
-                    toolbarAnim.animate(false)
-                }
+                UtLogger.debug("PLY: playing --> hide toolbar")
+                //toolbarAnim.animate(false)
+                med.request(false, 2000)
             } else {
-                if(binding.fab.visibility!=View.VISIBLE) {
-                    toolbarAnim.animate(true)
+                UtLogger.debug("PLY: !playing --> show toolbar")
+//                toolbarAnim.animate(true)
+                med.request(true, 300)
+            }
+        }
+    }
+
+    /**
+     * 動画再生開始、停止時のツールバー表示・非表示アニメーションが連続で実行されてがちょんがちょんなるのを防ぐための調停者
+     */
+    inner class ToolbarAnimationMediator {
+        var requested = false
+        var actual = true
+        var deferred: Deferred<Unit>? = null
+
+        fun request(show:Boolean, after:Long) {
+            deferred?.cancel("hoge")
+            requested = show
+            deferred = CoroutineScope(Dispatchers.Main).async {
+                delay(after)
+                if(requested!=actual) {
+                    actual = requested
+                    toolbarAnim.animate(requested)
                 }
             }
         }
     }
+
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -101,7 +127,7 @@ class MainActivity : AppCompatActivity() {
 
     inner class Handlers {
         fun showDrawer(show:Boolean) {
-            drawerAnim.animate(show)
+            viewModel.showSidePanel.value = show
         }
 //        fun showToolbar(show:Boolean) {
 //            toolbarAnim.animate(show)
