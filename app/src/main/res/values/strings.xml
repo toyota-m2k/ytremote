@@ -24,4 +24,5 @@
     <string name="fullscreen_button">Full Screen</string>
     <string name="no_player">PinP</string>
     <string name="setting_title">BooRemote-Settings</string>
+    <string name="host_addr_label">Host Address</string>
 </resources>
