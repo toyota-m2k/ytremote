@@ -36,7 +36,7 @@
             app:layout_constraintTop_toBottomOf="@+id/app_bar"
             app:layout_constraintBottom_toBottomOf="parent"
             android:padding="20dp"
-            android:columnCount="2"
+            android:columnCount="3"
             >
             <TextView
                 android:id="@+id/host_addr_label"
@@ -51,14 +51,42 @@
                 android:id="@+id/host_addr_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                tools:text="192.168.0.10"
+                android:layout_columnWeight="1"
+                android:inputType="textUri"
+                android:imeOptions="actionDone"
+                tools:text="192.168.0.10:3500"
                 android:layout_row="0"
                 android:layout_column="1"
                 android:layout_marginStart="10dp"
-                />
+                android:hint="@string/host_hint"
+                android:autofillHints="@string/host_hint" />
 
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_row="0"
+                android:layout_column="2"
+                android:textAllCaps="false"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:insetLeft="4dp"
+                android:src="@drawable/ic_plus"
+                android:tint="@color/black"
+                app:rippleColor="@color/teal_200"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/add_button" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/host_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_row="1"
+                android:layout_column="0"
+                android:layout_columnSpan="3"
+                android:choiceMode="singleChoice"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="5dp"
+                />
         </GridLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
