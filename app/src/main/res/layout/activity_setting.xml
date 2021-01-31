@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="com.michael.ytremote.data.Rating"/>
+        <variable name="model" type="com.michael.ytremote.model.SettingViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -36,7 +37,7 @@
             app:layout_constraintTop_toBottomOf="@+id/app_bar"
             app:layout_constraintBottom_toBottomOf="parent"
             android:padding="20dp"
-            android:columnCount="3"
+            android:columnCount="2"
             >
             <TextView
                 android:id="@+id/host_addr_label"
@@ -45,27 +46,33 @@
                 android:text="@string/host_addr_label"
                 android:layout_row="0"
                 android:layout_column="0"
+                android:layout_gravity="center_vertical"
                 />
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_row="0"
+                android:layout_column="1"
+                >
             <EditText
                 android:id="@+id/host_addr_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
                 android:inputType="textUri"
                 android:imeOptions="actionDone"
+                android:text="@={model.editingHost}"
+                android:minWidth="200dp"
                 tools:text="192.168.0.10:3500"
-                android:layout_row="0"
-                android:layout_column="1"
                 android:layout_marginStart="10dp"
                 android:hint="@string/host_hint"
-                android:autofillHints="@string/host_hint" />
+                android:autofillHints="@string/host_hint"
+                />
 
             <ImageButton
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_row="0"
-                android:layout_column="2"
                 android:textAllCaps="false"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
@@ -74,7 +81,10 @@
                 android:tint="@color/black"
                 app:rippleColor="@color/teal_200"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/add_button" />
+                android:contentDescription="@string/add_button"
+                android:onClick="@{()->model.addHost()}"
+                />
+            </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/host_list"
                 android:layout_width="match_parent"
@@ -82,12 +92,156 @@
                 android:layout_rowWeight="1"
                 android:layout_row="1"
                 android:layout_column="0"
-                android:layout_columnSpan="3"
+                android:layout_columnSpan="2"
                 android:choiceMode="singleChoice"
                 android:divider="@android:color/transparent"
                 android:dividerHeight="5dp"
+                android:background="#F0F0F0"
+                android:padding="5dp"
                 />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="2"
+                android:layout_column="0"
+                android:text="@string/src_type_label"
+                android:layout_gravity="center_vertical"
+                />
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="2"
+                android:layout_column="1"
+                android:orientation="horizontal"
+                android:checkedButton="@{model.srcTypeButton}"
+                >
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/chk_src_db"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/src_db"
+                    />
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/chk_src_listed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:text="@string/src_listed"
+                    />
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/chk_src_selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/src_selected"
+                    />
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="3"
+                android:layout_column="0"
+                android:text="@string/rating_label"
+                android:layout_gravity="center_vertical"
+                />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/rating_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="3"
+                android:layout_column="1"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal"
+                >
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tg_rating_dreadful"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_dreadful"
+                    app:iconPadding="0dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tg_rating_bad"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_bad"
+                    app:iconPadding="0dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tg_rating_normal"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_normal"
+                    app:iconPadding="0dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tg_rating_good"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_good"
+                    app:iconPadding="0dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tg_rating_excellent"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_excellent"
+                    app:iconPadding="0dp"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="4"
+                android:layout_column="0"
+                android:text="@string/mark_label"
+                android:layout_gravity="center_vertical"
+                />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/mark_selector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="4"
+                android:layout_column="1"
+                android:orientation="horizontal"
+                >
+                <Button
+                    android:id="@+id/tg_mark_star"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_star"
+                    app:iconPadding="0dp"/>
+                <Button
+                    android:id="@+id/tg_mark_flag"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_flag"
+                    app:iconPadding="0dp"/>
+                <Button
+                    android:id="@+id/tg_mark_heart"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/mtrl_min_touch_target_size"
+                    app:icon="@drawable/ic_heart"
+                    app:iconPadding="0dp"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
         </GridLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
