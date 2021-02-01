@@ -5,9 +5,10 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.michael.ytremote.data.*
 
 class MainViewModel : ViewModel(), IPlayerOwner {
-    val rating = MutableLiveData<Rating>()
-    val mark = MutableLiveData<Mark>()
-    val category = MutableLiveData<String>()
+//    val rating = MutableLiveData<Rating>()
+//    val mark = MutableLiveData<Mark>()
+//    val category = MutableLiveData<String>()
+//    var settings:Settings? = null
     val showSidePanel = MutableLiveData<Boolean>(true)
 
     val appViewModel = AppViewModel.instance.apply { addRef() }
@@ -37,13 +38,17 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         this.player.value = null
     }
 
-    val filter:VideoItemFilter
-        get() = VideoItemFilter(rating=rating.value, mark=mark.value, category = category.value)
+//    val filter:VideoItemFilter
+//        get() = settings?.run { VideoItemFilter(rating=rating, marks=marks, category = category) } ?: VideoItemFilter()
 
-    fun update() {
+    var settings:Settings? = null
+    fun update():Boolean {
+        val s = settings ?: return false
+        if(!s.isValid) return false
         appViewModel.updateVideoList {
-            VideoListSource.retrieve(filter)
+            VideoListSource.retrieve(s)
         }
+        return true
     }
 
     override fun onCleared() {

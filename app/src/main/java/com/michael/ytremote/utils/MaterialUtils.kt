@@ -62,27 +62,30 @@ abstract class RadioButtonGroup<T>() : MaterialButtonGroup() {
 }
 
 abstract class ToggleButtonGroup<T> : MaterialButtonGroup() {
-    private val internalMap = mutableMapOf<T,Boolean>()
+    private val selectionSet = mutableSetOf<T>()
     var selected:List<T>
-        get() = internalMap.filter{it.value}.map {it.key}
+        get() = selectionSet.toList()
         set(v) {
             owner?.clearChecked()
+            selectionSet.clear()
             v.forEach {
                 owner?.check(value2id(it))
-                internalMap[it] = true
+                selectionSet.add(it)
             }
         }
 
     operator fun get(at:T):Boolean {
-        return internalMap[at] ?: false
+        return selectionSet.contains(at)
     }
+
     operator fun set(at:T, v:Boolean) {
         if(v) {
             owner?.check(value2id(at))
+            selectionSet.add(at)
         } else {
             owner?.uncheck(value2id(at))
+            selectionSet.remove(at)
         }
-        internalMap[at] = v
     }
 
     fun bind(gr: MaterialButtonToggleGroup, sourceToView:Boolean=true) {
@@ -90,16 +93,24 @@ abstract class ToggleButtonGroup<T> : MaterialButtonGroup() {
 
         owner = gr
         if(sourceToView) {
-            internalMap.forEach { if(it.value) gr.check(value2id(it.key)) else gr.uncheck(value2id(it.key))}
+            val list = selectionSet.toList()
+            gr.clearChecked()
+            selected = list
         } else {
-            val checked = gr.checkedButtonIds
-            internalMap.keys.forEach { internalMap[it] = false }
-            checked.forEach { internalMap[id2value(it)!!] = true}
+            selectionSet.clear()
+            gr.checkedButtonIds.forEach {
+                selectionSet.add(id2value(it) ?: return@forEach)
+            }
         }
     }
 
     override fun onChecked(id: Int, checked: Boolean) {
-        internalMap[id2value(id)!!] = checked
+        val v = id2value(id) ?: return
+        if(checked) {
+            selectionSet.add(v)
+        } else {
+            selectionSet.remove(v)
+        }
     }
 
     abstract fun id2value(id:Int) : T?

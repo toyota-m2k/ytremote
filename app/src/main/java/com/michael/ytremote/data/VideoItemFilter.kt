@@ -8,43 +8,65 @@ enum class Rating(val v:Int, val id:Int) {
     BAD(2, R.id.tg_rating_bad),
     NORMAL(3, R.id.tg_rating_normal),
     GOOD(4, R.id.tg_rating_good),
-    EXCELLENT(5, R.id.tg_rating_excellent),
+    EXCELLENT(5, R.id.tg_rating_excellent);
+
+    companion object {
+        fun valueOf(v: Int, def: Rating = NORMAL): Rating {
+            return values().find { it.v == v } ?: def
+        }
+    }
 }
 
 enum class Mark(val v:Int, val id:Int) {
-    MARK_NONE(0, 0),
-    MARK_STAR(1, R.id.tg_mark_star),
-    MARK_FLAG(2, R.id.tg_mark_flag),
-    MARK_HEART(3, R.id.tg_mark_heart),
+    NONE(0, 0),
+    STAR(1, R.id.tg_mark_star),
+    FLAG(2, R.id.tg_mark_flag),
+    HEART(3, R.id.tg_mark_heart);
+
+    companion object {
+        fun valueOf(v: Int, def: Mark = Mark.NONE): Mark {
+            return Mark.values().find { it.v == v } ?: def
+        }
+    }
 }
 
 enum class SourceType(val v:Int, val id:Int) {
-    SOURCE_DB(0, R.id.chk_src_db),
-    SOURCE_LISTED(1, R.id.chk_src_listed),
-    SOURCE_SELECTED(2, R.id.chk_src_selected),
+    DB(0, R.id.chk_src_db),
+    LISTED(1, R.id.chk_src_listed),
+    SELECTED(2, R.id.chk_src_selected);
+
+    companion object {
+        fun valueOf(v: Int, def: SourceType = DB): SourceType {
+            return SourceType.values().find { it.v == v } ?: def
+        }
+    }
 }
 
-data class VideoItemFilter(val rating:Rating?=null, val mark:Mark?=null, val category:String?=null) {
+data class VideoItemFilter(val settings:Settings) {
+
     private fun getQueryString():String {
         val qb = QueryBuilder()
-        if(rating!=null) {
-            qb.add("r", rating.v)
+        if(settings.sourceType!=SourceType.DB) {
+            qb.add("s", settings.sourceType.v)
         }
-        if(mark!=null) {
-            qb.add("m", mark.v)
+        if(settings.rating!=Rating.NORMAL) {
+            qb.add("r", settings.rating.v)
         }
-        if(category!=null) {
-            qb.add("c", category)
+        if(!settings.marks.isNullOrEmpty()) {
+            qb.add("m", settings.marks.joinToString("."))
+        }
+        if(!settings.category.isNullOrEmpty()) {
+            qb.add("c", settings.category)
         }
         return qb.queryString
     }
 
-    fun urlWithQueryString(url:String) : String {
+    fun urlWithQueryString() : String {
         val query = getQueryString()
         return if(query.isNotEmpty()) {
-            "${url}?${query}"
+            "${settings.baseUrl}list?${query}"
         } else {
-            url
+            "${settings.baseUrl}list"
         }
     }
 

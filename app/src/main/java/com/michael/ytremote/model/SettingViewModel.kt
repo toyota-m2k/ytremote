@@ -1,9 +1,11 @@
 package com.michael.ytremote.model
 
+import android.content.Context
 import androidx.lifecycle.*
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.michael.ytremote.data.Mark
 import com.michael.ytremote.data.Rating
+import com.michael.ytremote.data.Settings
 import com.michael.ytremote.data.SourceType
 import com.michael.ytremote.utils.RadioButtonGroup
 import com.michael.ytremote.utils.ToggleButtonGroup
@@ -32,8 +34,9 @@ class MarkToggleGroup : ToggleButtonGroup<Mark>() {
         return v.id
     }
 
-    val marks:List<Mark>
+    var marks:List<Mark>
         get() = selected
+        set(v) { selected = v }
 }
 
 class SettingViewModel : ViewModel() {
@@ -69,6 +72,34 @@ class SettingViewModel : ViewModel() {
         if(activeHost.value == address) {
             activeHost.value = hostList.value?.firstOrNull()
         }
+    }
+
+    val settings:Settings
+        get() = Settings(
+                activeHost = activeHost.value,
+                hostList = hostList.value ?: listOf(),
+                sourceType = sourceType.value ?: SourceType.DB,
+                rating = ratingGroup.rating ?: Rating.NORMAL,
+                marks = markGroup.marks,
+                category = category.value)
+
+    fun load(context:Context) {
+        val s = Settings.load(context)
+        activeHost.value = s.activeHost
+        hostList.value = s.hostList
+        sourceType.value = s.sourceType
+        ratingGroup.rating = s.rating
+        markGroup.marks = s.marks
+        category.value = s.category
+    }
+
+    fun save(context:Context):Boolean {
+        val s = settings
+        if(!s.isValid) {
+            return false
+        }
+        s.save(context)
+        return true
     }
 
     companion object {

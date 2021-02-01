@@ -21,6 +21,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.michael.ytremote.data.Settings
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
@@ -120,8 +121,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        if(savedInstanceState==null) {
-            viewModel.update()
+        if(viewModel.settings==null) {
+            val settings = Settings.load(this)
+            if(!settings.isValid) {
+                handlers.openSetting()
+                return
+            } else {
+                viewModel.settings = settings
+                viewModel.update()
+            }
         }
     }
 

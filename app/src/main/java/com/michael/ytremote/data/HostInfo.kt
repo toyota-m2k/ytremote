@@ -1,16 +1,16 @@
 package com.michael.ytremote.data
 
-object HostInfo {
-    val hostAddress = "192.168.0.12"
-    val urlBase = "http://${hostAddress}:3500/ytplayer/"
+data class HostInfo(val settings:Settings) {
+//    val hostAddress = "192.168.0.12"
+//    val urlBase = "http://${hostAddress}:3500/ytplayer/"
+//
+//    private val listUrl = urlBase + "list"
 
-    private val listUrl = urlBase + "list"
-
-    fun listUrl(filter:VideoItemFilter? = null):String {
-        return filter?.urlWithQueryString(listUrl) ?: listUrl
+    fun listUrl():String {
+        return VideoItemFilter(settings).urlWithQueryString()
     }
 
     fun videoUrl(id:String):String {
-        return urlBase + "video?id=${id}"
+        return settings.baseUrl + "video?id=${id}"
     }
 }

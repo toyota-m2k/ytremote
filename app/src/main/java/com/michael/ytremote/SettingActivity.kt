@@ -27,6 +27,9 @@ class SettingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = SettingViewModel.instanceFor(this)
+        if(savedInstanceState==null) {
+            viewModel.load(this)
+        }
         binding = DataBindingUtil.setContentView<ActivitySettingBinding>(this, R.layout.activity_setting).apply {
             model = viewModel
         }
@@ -52,14 +55,19 @@ class SettingActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
-            android.R.id.home-> { finish(); true }
+            android.R.id.home-> { checkAndFinish(); true }
             else-> super.onOptionsItemSelected(item)
         }
     }
 
     private fun checkAndFinish() {
         UtLogger.debug("Rating=${viewModel.ratingGroup.rating}")
-        UtLogger.debug("Mark=${viewModel.markGroup}")
+        UtLogger.debug("Marks=${viewModel.markGroup.marks}")
+
+        if(!viewModel.save(this)) {
+            return
+        }
+        finish()
     }
 
 
