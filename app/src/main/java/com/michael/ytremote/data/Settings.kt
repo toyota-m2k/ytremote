@@ -26,9 +26,12 @@ data class Settings(
         return VideoItemFilter(this).urlWithQueryString()
     }
 
-    fun videoUrl(id:String):String
-    {
+    fun videoUrl(id:String):String {
         return baseUrl + "video?id=${id}"
+    }
+
+    fun urlToRegister(url:String):String {
+        return baseUrl + "register?url=${url}"
     }
 
 

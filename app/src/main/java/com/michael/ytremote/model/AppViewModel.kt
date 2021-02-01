@@ -9,7 +9,9 @@ import com.michael.ytremote.BooApplication
 import com.michael.ytremote.data.Settings
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.data.VideoListSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
 interface IPlayerOwner {
@@ -66,7 +68,9 @@ class AppViewModel : ViewModel() {
                 return@launch
             }
             loading.value = true
-            val list = VideoListSource.retrieve()
+            val list = withContext(Dispatchers.Default) {
+                VideoListSource.retrieve()
+            }
             if(list!=null) {
                 videoList.value = list
             }

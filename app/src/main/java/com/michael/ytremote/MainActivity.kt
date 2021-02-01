@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.michael.ytremote.data.NetClient
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
@@ -16,6 +17,7 @@ import com.michael.ytremote.model.MainViewModel
 import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.utils.*
 import kotlinx.coroutines.*
+import okhttp3.Request
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -83,6 +85,39 @@ class MainActivity : AppCompatActivity() {
 //                toolbarAnim.animate(true)
                 med.request(true, 300)
             }
+        }
+
+        if(intent?.action == Intent.ACTION_SEND) {
+            if ("text/plain" == intent.type) {
+                registerUrl(intent.getStringExtra(Intent.EXTRA_TEXT))
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if(intent?.action == Intent.ACTION_SEND) {
+            if ("text/plain" == intent.type) {
+                registerUrl(intent.getStringExtra(Intent.EXTRA_TEXT))
+            }
+        }
+    }
+
+    fun registerUrl(rawUrl:String?) {
+        if(rawUrl==null||(!rawUrl.startsWith("https://")&&!rawUrl.startsWith("http://"))) {
+            return
+        }
+        val yturl = rawUrl.split("\r","\n"," ","\t").filter {it!=null}.firstOrNull()
+        if(yturl==null) {
+            return
+        }
+        val url = viewModel.appViewModel.settings.urlToRegister(yturl)
+        CoroutineScope(Dispatchers.Default).launch {
+            val req = Request.Builder()
+                    .url(url)
+                    .get()
+                    .build()
+            NetClient.executeAsync(req)
         }
     }
 
