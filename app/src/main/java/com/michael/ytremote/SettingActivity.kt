@@ -1,22 +1,17 @@
 package com.michael.ytremote
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.michael.ytremote.data.Rating
-import com.michael.ytremote.data.VideoItem
-import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ActivitySettingBinding
 import com.michael.ytremote.databinding.HostListItemBinding
-import com.michael.ytremote.databinding.ListItemBinding
 import com.michael.ytremote.model.HostItemViewModel
 import com.michael.ytremote.model.SettingViewModel
-import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.utils.UtLogger
 import com.michael.ytremote.utils.lifecycleOwner
 
@@ -78,7 +73,7 @@ class SettingActivity : AppCompatActivity() {
         }
     }
 
-    inner class ListAdapter() : RecyclerView.Adapter<ViewHolder>() {
+    inner class ListAdapter : RecyclerView.Adapter<ViewHolder>() {
         var items:List<String>? = null
             set(v) {
                 field = v

@@ -1,36 +1,22 @@
 package com.michael.ytremote
 
-import android.animation.ValueAnimator
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
-import android.widget.Space
-import androidx.appcompat.app.ActionBarDrawerToggle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.animation.addListener
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.AppBarLayout
-import com.michael.ytremote.data.Settings
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.databinding.ActivityMainBinding
 import com.michael.ytremote.databinding.ListItemBinding
-import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.model.MainViewModel
+import com.michael.ytremote.model.VideoItemViewModel
 import com.michael.ytremote.utils.*
 import kotlinx.coroutines.*
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -50,15 +36,15 @@ class MainActivity : AppCompatActivity() {
         }
         drawerAnim = AnimSet().apply {
             add(ViewSizeAnimChip(binding.micSpacer, 240, 0, height=false))
-            add(ViewVisibilityAnimationChip(binding.micDrawerGuard, true, false, true, 0.6f))
+            add(ViewVisibilityAnimationChip(binding.micDrawerGuard, startVisible = true, endVisible = false, gone = true, maxAlpha = 0.6f))
         }
         toolbarAnim = AnimSequence().apply {
             add( AnimSet().apply {
                 add(ViewSizeAnimChip(binding.micSpacer, 40, 0, height = true))
-                add(ViewVisibilityAnimationChip(binding.fab, true, false))
+                add(ViewVisibilityAnimationChip(binding.fab, startVisible = true, endVisible = false))
             })
             add(AnimSet().apply{
-                add(ViewVisibilityAnimationChip(binding.micOpenToolbar, false,true))
+                add(ViewVisibilityAnimationChip(binding.micOpenToolbar, startVisible = false, endVisible = true))
             })
         }
 //        binding.micOpenToolbar.visibility = View.VISIBLE
@@ -79,6 +65,9 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.videoList.observe(this) {
             (binding.videoList.adapter as? ListAdapter)?.items = it
+            if(it!=null&&it.isNotEmpty()) {
+                handlers.showDrawer(true)
+            }
         }
         viewModel.showSidePanel.observe(this){
             drawerAnim.animate(it==true)
@@ -101,12 +90,12 @@ class MainActivity : AppCompatActivity() {
      * 動画再生開始、停止時のツールバー表示・非表示アニメーションが連続で実行されてがちょんがちょんなるのを防ぐための調停者
      */
     inner class ToolbarAnimationMediator {
-        var requested = false
-        var actual = true
-        var deferred: Deferred<Unit>? = null
+        private var requested = false
+        private var actual = true
+        private var deferred: Deferred<Unit>? = null
 
         fun request(show:Boolean, after:Long) {
-            deferred?.cancel("hoge")
+            deferred?.cancel("cancel")
             requested = show
             deferred = CoroutineScope(Dispatchers.Main).async {
                 delay(after)
@@ -121,17 +110,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        if(viewModel.settings==null) {
-            val settings = Settings.load(this)
-            if(!settings.isValid) {
-                handlers.openSetting()
-                return
-            } else {
-                viewModel.settings = settings
-                viewModel.update()
-            }
+        if(!viewModel.appViewModel.settings.isValid) {
+            handlers.openSetting()
         }
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//    }
 
     inner class Handlers {
         fun showDrawer(show:Boolean) {
@@ -140,6 +130,11 @@ class MainActivity : AppCompatActivity() {
 //        fun showToolbar(show:Boolean) {
 //            toolbarAnim.animate(show)
 //        }
+
+        fun update() {
+            viewModel.update()
+        }
+
 
         fun openSetting() {
             startActivity(Intent(this@MainActivity, SettingActivity::class.java))
@@ -153,7 +148,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class ListAdapter() : RecyclerView.Adapter<ViewHolder>() {
+    inner class ListAdapter : RecyclerView.Adapter<ViewHolder>() {
         var items:List<VideoItem>? = null
             set(v) {
                 field = v

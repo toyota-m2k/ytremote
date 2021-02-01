@@ -9,13 +9,16 @@ class MainViewModel : ViewModel(), IPlayerOwner {
 //    val mark = MutableLiveData<Mark>()
 //    val category = MutableLiveData<String>()
 //    var settings:Settings? = null
-    val showSidePanel = MutableLiveData<Boolean>(true)
+    val showSidePanel = MutableLiveData(true)
 
     val appViewModel = AppViewModel.instance.apply { addRef() }
-    val busy : MutableLiveData<Boolean>
-        get() = appViewModel.loading
+//    val busy : MutableLiveData<Boolean>
+//        get() = appViewModel.loading
     val videoList : MutableLiveData<List<VideoItem>>
         get() = appViewModel.videoList
+
+//    var currentHost:String? = null
+
 //    val currentVideo : MutableLiveData<VideoItem>
 //        get() = appViewModel.currentVideo
 //    var currentId:String? = null
@@ -41,14 +44,8 @@ class MainViewModel : ViewModel(), IPlayerOwner {
 //    val filter:VideoItemFilter
 //        get() = settings?.run { VideoItemFilter(rating=rating, marks=marks, category = category) } ?: VideoItemFilter()
 
-    var settings:Settings? = null
-    fun update():Boolean {
-        val s = settings ?: return false
-        if(!s.isValid) return false
-        appViewModel.updateVideoList {
-            VideoListSource.retrieve(s)
-        }
-        return true
+    fun update() {
+        appViewModel.updateVideoList()
     }
 
     override fun onCleared() {

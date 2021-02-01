@@ -2,15 +2,12 @@ package com.michael.ytremote.model
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.michael.ytremote.data.Mark
 import com.michael.ytremote.data.Rating
 import com.michael.ytremote.data.Settings
 import com.michael.ytremote.data.SourceType
 import com.michael.ytremote.utils.RadioButtonGroup
 import com.michael.ytremote.utils.ToggleButtonGroup
-import com.michael.ytremote.utils.utAssert
-import java.lang.ref.WeakReference
 
 class RatingRadioGroup : RadioButtonGroup<Rating>() {
     override fun id2value(id: Int): Rating? {

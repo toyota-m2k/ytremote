@@ -1,5 +1,7 @@
 package com.michael.ytremote.data
 
+import com.michael.ytremote.BooApplication
+import com.michael.ytremote.model.AppViewModel
 import com.michael.ytremote.player.MicClipping
 import com.michael.ytremote.utils.UtLogger
 import com.michael.ytremote.utils.toIterable
@@ -18,8 +20,8 @@ fun JSONObject.safeGetLong(key:String, defValue:Long) : Long {
 
 data class VideoItem(val id:String,val name:String, val start:Long, val end:Long) {
     internal constructor(j:JSONObject) : this(j.getString("id"), j.getString("name"), j.safeGetLong("start", 0), j.safeGetLong("end", 0))
-//    val url:String
-//        get() = HostInfo.videoUrl(id)
+    val url:String
+        get() = AppViewModel.instance.settings.videoUrl(id)
     val clipping:MicClipping
         get() = MicClipping(start,end)
 }
@@ -53,8 +55,8 @@ object VideoListSource {
 //
 //    private const val listUrl = "http://192.168.0.12:3500/ytplayer/list"
 
-    suspend fun retrieve(settings: Settings) : List<VideoItem>? {
-        val url = HostInfo(settings).listUrl()
+    suspend fun retrieve() : List<VideoItem>? {
+        val url = AppViewModel.instance.settings.listUrl()
         val req = Request.Builder()
                 .url(url)
                 .get()

@@ -19,8 +19,8 @@ class VideoItemViewModel(private val videoItem:VideoItem, private val listModel:
         get() = videoItem.start
     val end
         get() = videoItem.end
-    val clipping:MicClipping
-        get() = videoItem.clipping
+//    val clipping:MicClipping
+//        get() = videoItem.clipping
 
     val isSelected: LiveData<Boolean> = listModel.appViewModel.currentVideo.map {
         it?.id == videoItem.id

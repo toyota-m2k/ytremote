@@ -1,7 +1,6 @@
 package com.michael.ytremote.ui.home
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,14 +9,9 @@ import android.widget.ImageButton
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.michael.ytremote.R
-import com.michael.ytremote.data.HostInfo
 import com.michael.ytremote.databinding.FragmentHomeBinding
 import com.michael.ytremote.model.MainViewModel
 import com.michael.ytremote.player.FullscreenVideoActivity
-import com.michael.ytremote.player.MicVideoPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
     private lateinit var viewModel:MainViewModel

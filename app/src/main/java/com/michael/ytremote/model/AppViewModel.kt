@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.michael.ytremote.BooApplication
+import com.michael.ytremote.data.Settings
 import com.michael.ytremote.data.VideoItem
+import com.michael.ytremote.data.VideoListSource
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -25,6 +27,16 @@ class AppViewModel : ViewModel() {
     private var player: SimpleExoPlayer? = null
     private var primaryOwner :WeakReference<IPlayerOwner>? = null
     private var secondaryOwner :WeakReference<IPlayerOwner>? = null
+
+    private var mSettings: Settings? = null
+    var settings: Settings
+        get() = mSettings!!
+        set(v) {
+            if(v!=mSettings) {
+                mSettings = v
+                updateVideoList()
+            }
+        }
 
     fun attachPrimaryOwner(owner:IPlayerOwner) {
         primaryOwner?.get()?.ownerResigned()
@@ -48,13 +60,13 @@ class AppViewModel : ViewModel() {
         release()
     }
 
-    fun updateVideoList(retrieve:(suspend ()->List<VideoItem>?)) {
+    fun updateVideoList() {
         viewModelScope.launch {
             if(loading.value == true) {
                 return@launch
             }
             loading.value = true
-            val list = retrieve()
+            val list = VideoListSource.retrieve()
             if(list!=null) {
                 videoList.value = list
             }
@@ -107,6 +119,9 @@ class AppViewModel : ViewModel() {
             get() = ViewModelProvider(BooApplication.instance, ViewModelProvider.NewInstanceFactory()).get(AppViewModel::class.java).apply {
                 if(null==player) {
                     player = SimpleExoPlayer.Builder(BooApplication.instance).build()
+                }
+                if(null==mSettings) {
+                    settings = Settings.load(BooApplication.instance)
                 }
             }
     }

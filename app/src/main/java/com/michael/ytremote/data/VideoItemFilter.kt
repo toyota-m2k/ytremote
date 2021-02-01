@@ -53,7 +53,7 @@ data class VideoItemFilter(val settings:Settings) {
             qb.add("r", settings.rating.v)
         }
         if(!settings.marks.isNullOrEmpty()) {
-            qb.add("m", settings.marks.joinToString("."))
+            qb.add("m", settings.marks.map{"${it.v}"}.joinToString("."))
         }
         if(!settings.category.isNullOrEmpty()) {
             qb.add("c", settings.category)
