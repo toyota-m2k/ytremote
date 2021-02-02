@@ -94,6 +94,7 @@
                 android:tint="@color/white"
                 app:rippleColor="@color/teal_200"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:onClick="@{()->handler.openSetting()}"
                 />
 <!--            <com.google.android.material.button.MaterialButton-->
 <!--                android:id="@+id/close_toolbar_button"-->
@@ -122,14 +123,14 @@
             app:layout_constraintBottom_toBottomOf="parent">
             <include layout="@layout/content_main" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="@dimen/fab_margin"
-                android:contentDescription="@string/app_name"
-                app:srcCompat="@android:drawable/ic_dialog_email" />
+<!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--                android:id="@+id/fab"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="bottom|end"-->
+<!--                android:layout_margin="@dimen/fab_margin"-->
+<!--                android:contentDescription="@string/app_name"-->
+<!--                app:srcCompat="@android:drawable/ic_dialog_email" />-->
         </FrameLayout>
 
         <ImageButton
@@ -189,7 +190,7 @@
                 android:choiceMode="singleChoice"
                 android:divider="@android:color/transparent"
                 android:dividerHeight="0dp"
-                android:background="#0000" />
+                android:background="#40FFFFFF" />
 
             <LinearLayout
                 android:id="@+id/list_toolbar"
@@ -211,7 +212,7 @@
                     android:tint="@color/white"
                     app:rippleColor="@color/teal_200"
                     android:contentDescription="@string/refresh"
-                    android:onClick="@{()->model.update()}"
+                    android:onClick="@{()->handler.update()}"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     />
 

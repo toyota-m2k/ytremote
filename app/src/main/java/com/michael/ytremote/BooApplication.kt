@@ -1,6 +1,5 @@
 package com.michael.ytremote
 
-import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
