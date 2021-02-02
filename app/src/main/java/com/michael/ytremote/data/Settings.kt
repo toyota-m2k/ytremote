@@ -34,6 +34,11 @@ data class Settings(
         return baseUrl + "register?url=${url}"
     }
 
+    fun urlToListCategories(): String {
+        return baseUrl + "category"
+    }
+
+
 
     fun save(context: Context) {
         utAssert(isValid)

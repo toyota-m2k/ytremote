@@ -3,11 +3,16 @@ package com.michael.ytremote
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.ListPopupWindow
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.michael.ytremote.databinding.ActivitySettingBinding
 import com.michael.ytremote.databinding.HostListItemBinding
 import com.michael.ytremote.model.HostItemViewModel
@@ -40,17 +45,52 @@ class SettingActivity : AppCompatActivity() {
         }
 
 
+        viewModel.sourceTypeGroup.bind(binding.sourcrTypeSelector, true)
         viewModel.ratingGroup.bind(binding.ratingSelector, true)
-
         viewModel.markGroup.bind(binding.markSelector, true)
+
+//        viewModel.categoryList.categoryInfo.observe(this) {
+//            if(it!=null) {
+//                binding.categoryButton.setCompoundDrawables(it.icon, null, null, null)
+//            }
+//        }
+
+        binding.categoryButton.setOnClickListener(this::selectCategory)
+        viewModel.categoryList.currentLabel.observe(this) {
+            binding.categoryButton.text = it ?: "All"
+        }
 
         setSupportActionBar(binding.settingsToolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    private var listPopup: ListPopupWindow? = null
+    private fun selectCategory(view: View) {
+        val adapter = ArrayAdapter<String>(
+                this,
+                R.layout.array_adapter_item,
+                viewModel.categoryList.list.value?.map {it.label}?.toTypedArray() ?: arrayOf("All"))
+        listPopup = ListPopupWindow(this, null, R.attr.listPopupWindowStyle)
+                .apply {
+                    setAdapter(adapter)
+                    anchorView = view
+                    setOnItemClickListener { parent, view, position, id ->
+                        val cat = adapter.getItem(position)
+                        if(null!=cat) {
+                            viewModel.categoryList.category = cat
+                        }
+                        listPopup?.dismiss()
+                        listPopup = null
+                    }
+                    show()
+                }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
-            android.R.id.home-> { checkAndFinish(); true }
+            android.R.id.home -> {
+                checkAndFinish(); true
+            }
             else-> super.onOptionsItemSelected(item)
         }
     }

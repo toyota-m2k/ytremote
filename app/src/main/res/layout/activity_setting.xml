@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="com.michael.ytremote.data.Rating"/>
         <variable name="model" type="com.michael.ytremote.model.SettingViewModel" />
     </data>
 
@@ -56,34 +55,34 @@
                 android:layout_row="0"
                 android:layout_column="1"
                 >
-            <EditText
-                android:id="@+id/host_addr_edit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textUri"
-                android:imeOptions="actionDone"
-                android:text="@={model.editingHost}"
-                android:minWidth="200dp"
-                tools:text="192.168.0.10:3500"
-                android:layout_marginStart="10dp"
-                android:hint="@string/host_hint"
-                android:autofillHints="@string/host_hint"
-                />
+                <EditText
+                    android:id="@+id/host_addr_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="textUri"
+                    android:imeOptions="actionDone"
+                    android:text="@={model.editingHost}"
+                    android:minWidth="200dp"
+                    tools:text="192.168.0.10:3500"
+                    android:layout_marginStart="10dp"
+                    android:hint="@string/host_hint"
+                    android:autofillHints="@string/host_hint"
+                    />
 
-            <ImageButton
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:textAllCaps="false"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                android:insetLeft="4dp"
-                android:src="@drawable/ic_plus"
-                android:tint="@color/black"
-                app:rippleColor="@color/teal_200"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/add_button"
-                android:onClick="@{()->model.addHost()}"
-                />
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:textAllCaps="false"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:insetLeft="4dp"
+                    android:src="@drawable/ic_plus"
+                    android:tint="@color/black"
+                    app:rippleColor="@color/teal_200"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/add_button"
+                    android:onClick="@{()->model.addHost()}"
+                    />
             </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/host_list"
@@ -108,12 +107,12 @@
                 android:layout_gravity="center_vertical"
                 />
             <RadioGroup
+                android:id="@+id/sourcr_type_selector"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="1"
                 android:orientation="horizontal"
-                android:checkedButton="@{model.srcTypeButton}"
                 >
                 <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/chk_src_db"
@@ -240,6 +239,26 @@
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:layout_column="0"
+                android:text="@string/category_label"
+                android:layout_gravity="center_vertical"
+                />
+            <Button
+                android:id="@+id/category_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:layout_column="1"
+                android:minEms="10"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:textAllCaps="false"
+                android:textAlignment="textStart"
+                tools:text="All"
+                />
         </GridLayout>
 
 

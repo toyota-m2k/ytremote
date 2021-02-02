@@ -2,11 +2,9 @@ package com.michael.ytremote.model
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.michael.ytremote.data.Mark
-import com.michael.ytremote.data.Rating
-import com.michael.ytremote.data.Settings
-import com.michael.ytremote.data.SourceType
+import com.michael.ytremote.data.*
 import com.michael.ytremote.utils.RadioButtonGroup
+import com.michael.ytremote.utils.RawRadioButtonGroup
 import com.michael.ytremote.utils.ToggleButtonGroup
 
 class RatingRadioGroup : RadioButtonGroup<Rating>() {
@@ -36,18 +34,40 @@ class MarkToggleGroup : ToggleButtonGroup<Mark>() {
         set(v) { selected = v }
 }
 
+class SourceTypeRadioGroup : RawRadioButtonGroup<SourceType>() {
+    override fun id2value(id: Int): SourceType? {
+        return SourceType.values().find {it.id ==id}
+    }
+
+    override fun value2id(v: SourceType): Int {
+        return v.id
+    }
+
+    var sourceType:SourceType?
+        get() = selected
+        set(v) {selected = v}
+}
+
 class SettingViewModel : ViewModel() {
     val activeHost = MutableLiveData<String>()
     val editingHost = MutableLiveData<String>()
     val hostList = MutableLiveData<List<String>>()
-    val sourceType = MutableLiveData<SourceType>()
+//    val sourceType = MutableLiveData<SourceType>()
 
+    val sourceTypeGroup = SourceTypeRadioGroup()
     val ratingGroup = RatingRadioGroup()
     val markGroup = MarkToggleGroup()
 
-    val category=MutableLiveData<String>()
+    val categoryList = CategoryList().apply { update() }
 
-    val srcTypeButton = sourceType.map { it.id }
+//    val category = categoryList.currentLabel
+
+
+//    var srcTypeButton:MutableLiveData<Int>
+//        get() = sourceType.map { it.id }
+//        set(v) {
+//            sourceType.value = SourceType.values().find {it.id==v}
+//        }
 
     fun hasHost(address:String) : Boolean {
         return null != hostList.value?.find {it==address}
@@ -75,19 +95,19 @@ class SettingViewModel : ViewModel() {
         get() = Settings(
                 activeHost = activeHost.value,
                 hostList = hostList.value ?: listOf(),
-                sourceType = sourceType.value ?: SourceType.DB,
+                sourceType = sourceTypeGroup.sourceType ?: SourceType.DB,
                 rating = ratingGroup.rating ?: Rating.NORMAL,
                 marks = markGroup.marks,
-                category = category.value)
+                category = categoryList.category)
 
     fun load(context:Context) {
         val s = Settings.load(context)
         activeHost.value = s.activeHost
         hostList.value = s.hostList
-        sourceType.value = s.sourceType
+        sourceTypeGroup.sourceType = s.sourceType
         ratingGroup.rating = s.rating
         markGroup.marks = s.marks
-        category.value = s.category
+        categoryList.category = s.category
     }
 
     fun save(context:Context):Boolean {

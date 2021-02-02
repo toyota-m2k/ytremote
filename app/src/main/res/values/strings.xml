@@ -33,4 +33,5 @@
     <string name="src_selected">Selected</string>
     <string name="rating_label">Rating</string>
     <string name="mark_label">Mark</string>
+    <string name="category_label">Category</string>
 </resources>

@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         toolbarAnim = AnimSequence().apply {
             add( AnimSet().apply {
                 add(ViewSizeAnimChip(binding.micSpacer, 40, 0, height = true))
-                add(ViewVisibilityAnimationChip(binding.fab, startVisible = true, endVisible = false))
+//                add(ViewVisibilityAnimationChip(binding.fab, startVisible = true, endVisible = false))
             })
             add(AnimSet().apply{
                 add(ViewVisibilityAnimationChip(binding.micOpenToolbar, startVisible = false, endVisible = true))
@@ -51,11 +51,11 @@ class MainActivity : AppCompatActivity() {
         }
 //        binding.micOpenToolbar.visibility = View.VISIBLE
 
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+//        val fab: FloatingActionButton = findViewById(R.id.fab)
+//        fab.setOnClickListener { view ->
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//        }
 
 //        viewModel.appViewModel.playing.observe(this) {
 //        }
@@ -67,11 +67,12 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.videoList.observe(this) {
             (binding.videoList.adapter as? ListAdapter)?.items = it
-            if(it!=null&&it.isNotEmpty()) {
+            if(it.isNotEmpty()==true && viewModel.playOnMainPlayer.value!=true) {
                 handlers.showDrawer(true)
             }
         }
         viewModel.showSidePanel.observe(this){
+            UtLogger.debug("Drawer:(${it==true})")
             drawerAnim.animate(it==true)
         }
         val med = ToolbarAnimationMediator()
