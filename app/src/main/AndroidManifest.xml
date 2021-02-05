@@ -14,10 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BooRemote"
         android:usesCleartextTraffic="true">
-        <activity android:name=".SettingActivity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.BooRemote.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,6 +29,10 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SettingActivity"
+            android:launchMode="singleTop"
+            />
         <activity
             android:name=".player.FullscreenVideoActivity"
             android:clearTaskOnLaunch="true"
