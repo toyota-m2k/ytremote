@@ -92,7 +92,7 @@ class AnimSet(private val duration:Long=300L) : AbstractAnimChip(), IAnimEngine 
 
     override fun animate(reverse:Boolean, completed: ((Boolean) -> Unit)?) {
         activeAnimator?.run {
-//            UtLogger.debug("AnimSet.animate cancelled")
+            UtLogger.debug("Drawer: AnimSet.animate cancelled")
             cancel()
             next = reverse
             return

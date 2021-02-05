@@ -16,18 +16,18 @@ import kotlinx.coroutines.flow.callbackFlow
 //fun <T,R> LiveData<T>.flatMap(fn:(T)-> LiveData<R>): LiveData<R>
 //        = Transformations.switchMap(this) { x->fn(x)}
 
-fun <T> LiveData<T>.distinctUntilChanged(): LiveData<T> {
-    var first = true;
-    return MediatorLiveData<T>().also { med->
-        med.addSource(this ) { current ->
-            val prev = med.value
-            if (first || (prev == null && current != null) || (prev != null && prev != current)) {
-                first = false;
-                med.value = current
-            }
-        }
-    }
-}
+//fun <T> LiveData<T>.distinctUntilChanged(): LiveData<T> {
+//    var first = true;
+//    return MediatorLiveData<T>().also { med->
+//        med.addSource(this ) { current ->
+//            val prev = med.value
+//            if (first || (prev == null && current != null) || (prev != null && prev != current)) {
+//                first = false;
+//                med.value = current
+//            }
+//        }
+//    }
+//}
 
 fun <T> LiveData<T>.filter(predicate:(T?)->Boolean): LiveData<T> {
     return MediatorLiveData<T>().also { med->

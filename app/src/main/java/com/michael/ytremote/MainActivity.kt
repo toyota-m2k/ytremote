@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.distinctUntilChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                 handlers.showDrawer(true)
             }
         }
-        viewModel.showSidePanel.observe(this){
+        viewModel.showSidePanel.distinctUntilChanged().observe(this){
             UtLogger.debug("Drawer:(${it==true})")
             drawerAnim.animate(it==true)
         }
