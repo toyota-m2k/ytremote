@@ -27,7 +27,7 @@
     <string name="host_addr_label">Host Address</string>
     <string name="host_hint">IP Address</string>
     <string name="add_button">Add to list</string>
-    <string name="src_type_label">Source Type</string>
+    <string name="src_type_label">Source</string>
     <string name="src_db">All</string>
     <string name="src_listed">Listed</string>
     <string name="src_selected">Selected</string>
