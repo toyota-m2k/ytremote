@@ -6,6 +6,7 @@ import com.michael.ytremote.data.*
 import com.michael.ytremote.utils.RadioButtonGroup
 import com.michael.ytremote.utils.RawRadioButtonGroup
 import com.michael.ytremote.utils.ToggleButtonGroup
+import com.michael.ytremote.utils.PackageUtil
 
 class RatingRadioGroup : RadioButtonGroup<Rating>() {
     override fun id2value(id: Int): Rating? {
@@ -57,6 +58,7 @@ class SettingViewModel : ViewModel() {
     val sourceTypeGroup = SourceTypeRadioGroup()
     val ratingGroup = RatingRadioGroup()
     val markGroup = MarkToggleGroup()
+    lateinit var title:String
 
     val categoryList = CategoryList().apply { update() }
 
@@ -121,7 +123,10 @@ class SettingViewModel : ViewModel() {
 
     companion object {
         fun instanceFor(activity: ViewModelStoreOwner):SettingViewModel {
-            return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(SettingViewModel::class.java)
+            return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(SettingViewModel::class.java).apply {
+                val context = activity as? Context
+                title = if(context!=null) "${PackageUtil.appName(context)} - v${PackageUtil.getVersion(context)}" else "YtRemote"
+            }
         }
     }
 }

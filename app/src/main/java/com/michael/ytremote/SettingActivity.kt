@@ -1,10 +1,7 @@
 package com.michael.ytremote
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -33,8 +30,16 @@ class SettingActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView<ActivitySettingBinding>(this, R.layout.activity_setting).apply {
             model = viewModel
         }
-//        setContentView(R.layout.activity_setting)
 
+        // アドレス入力欄でのENTERキーの処理
+        binding.hostAddrEdit.setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                viewModel.addHost()
+                true
+            } else false
+        }
+
+        // ホストリストの初期化
         binding.hostList.run {
             adapter = ListAdapter()
             layoutManager = LinearLayoutManager(this@SettingActivity)
@@ -44,22 +49,18 @@ class SettingActivity : AppCompatActivity() {
             (binding.hostList.adapter as? ListAdapter)?.items = it
         }
 
-
+        // ラジオボタン、トグルボタン (SourceType, Rating, Mark)
         viewModel.sourceTypeGroup.bind(binding.sourcrTypeSelector, true)
         viewModel.ratingGroup.bind(binding.ratingSelector, true)
         viewModel.markGroup.bind(binding.markSelector, true)
 
-//        viewModel.categoryList.categoryInfo.observe(this) {
-//            if(it!=null) {
-//                binding.categoryButton.setCompoundDrawables(it.icon, null, null, null)
-//            }
-//        }
-
+        // カテゴリー（ポップアップメニュー）
         binding.categoryButton.setOnClickListener(this::selectCategory)
         viewModel.categoryList.currentLabel.observe(this) {
             binding.categoryButton.text = it ?: "All"
         }
 
+        // アクションバー
         setSupportActionBar(binding.settingsToolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
@@ -84,6 +85,10 @@ class SettingActivity : AppCompatActivity() {
                     }
                     show()
                 }
+    }
+
+    override fun onBackPressed() {
+        checkAndFinish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

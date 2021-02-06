@@ -1,5 +1,6 @@
 package com.michael.ytremote.data
 
+import com.michael.ytremote.utils.UtLogger
 import okhttp3.*
 import java.io.IOException
 import kotlin.coroutines.resume
@@ -14,6 +15,7 @@ object NetClient {
     }
 
     suspend fun executeAsync(req:Request):Response {
+        UtLogger.debug("NetClient: ${req.url.toString()}")
         return motherClient.newCall(req).executeAsync()
     }
 
@@ -26,14 +28,17 @@ object NetClient {
             try {
                 enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
+                        UtLogger.error("NetClient: error: ${e.localizedMessage}")
                         cont.resumeWithException(e)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
+                        UtLogger.debug("NetClient: completed (${response.code}): ${call.request().url}")
                         cont.resume(response)
                     }
                 })
             } catch(e:Throwable) {
+                UtLogger.error("NetClient: exception: ${e.localizedMessage}")
                 cont.resumeWithException(e)
             }
         }

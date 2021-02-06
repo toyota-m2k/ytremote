@@ -18,9 +18,18 @@ data class Settings(
     val isValid
         get() = !activeHost.isNullOrBlank()
 
+    val hostPort:String?
+        get() = activeHost?.let { host ->
+            return if(host.contains(":")) {
+                host
+            } else {
+                "${host}:3500"
+            }
+        }
     @Suppress("SpellCheckingInspection")
     val baseUrl : String
-        get() = "http://${activeHost}:3500/ytplayer/"
+        get() = "http://${hostPort}/ytplayer/"
+
 
     fun listUrl():String {
         return VideoItemFilter(this).urlWithQueryString()

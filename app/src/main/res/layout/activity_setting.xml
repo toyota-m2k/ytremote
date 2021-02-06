@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:title="@string/setting_title"
+                app:title="@{model.title}"
                 app:popupTheme="@style/Theme.BooRemote.PopupOverlay" />
 
 
@@ -65,7 +65,6 @@
                         android:inputType="textUri"
                         android:imeOptions="actionDone"
                         android:text="@={model.editingHost}"
-                        android:minWidth="200dp"
                         tools:text="192.168.0.10:3500"
                         android:layout_marginStart="10dp"
                         android:hint="@string/host_hint"
