@@ -2,6 +2,7 @@ package com.michael.ytremote
 
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -32,8 +33,14 @@ class SettingActivity : AppCompatActivity() {
         }
 
         // アドレス入力欄でのENTERキーの処理
-        binding.hostAddrEdit.setOnKeyListener { v, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+//        binding.hostAddrEdit.setOnKeyListener { v, keyCode, event ->
+//            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+//                viewModel.addHost()
+//                true
+//            } else false
+//        }
+        binding.hostAddrEdit.setOnEditorActionListener { v, actionId, event ->
+            if(actionId== EditorInfo.IME_ACTION_DONE) {
                 viewModel.addHost()
                 true
             } else false
