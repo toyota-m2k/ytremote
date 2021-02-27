@@ -2,31 +2,22 @@ package com.michael.ytremote.model
 
 import androidx.lifecycle.*
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.michael.ytremote.bind.list.ObservableList
 import com.michael.ytremote.data.*
 
 class MainViewModel : ViewModel(), IPlayerOwner {
-//    val rating = MutableLiveData<Rating>()
-//    val mark = MutableLiveData<Mark>()
-//    val category = MutableLiveData<String>()
-//    var settings:Settings? = null
     val showSidePanel = MutableLiveData(true)
 
     val appViewModel = AppViewModel.instance.apply { addRef() }
-//    val busy : MutableLiveData<Boolean>
-//        get() = appViewModel.loading
-    val videoList : MutableLiveData<List<VideoItem>>
-        get() = appViewModel.videoList
-
-//    var currentHost:String? = null
-
-//    val currentVideo : MutableLiveData<VideoItem>
-//        get() = appViewModel.currentVideo
-//    var currentId:String? = null
+//    val videoList : MutableLiveData<List<VideoItem>>
+//        get() = appViewModel.videoList
+    val videoSources: ObservableList<VideoItem>
+        get() = appViewModel.videoSources
 
     val player = MutableLiveData<SimpleExoPlayer>()
     val hasPlayer = player.map { it != null }
-    val playOnMainPlayer = hasPlayer.combineLatest(appViewModel.playing, appViewModel.videoList) {hasPlayer, playing, list->
-        hasPlayer == true && playing == true && list != null
+    val playOnMainPlayer = hasPlayer.combineLatest(appViewModel.playing) {hasPlayer, playing->
+        hasPlayer == true && playing == true
     }
 
     init {
@@ -41,11 +32,8 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         this.player.value = null
     }
 
-//    val filter:VideoItemFilter
-//        get() = settings?.run { VideoItemFilter(rating=rating, marks=marks, category = category) } ?: VideoItemFilter()
-
-    fun update() {
-        appViewModel.updateVideoList()
+    fun refresh() {
+        appViewModel.refreshVideoList()
     }
 
     override fun onCleared() {

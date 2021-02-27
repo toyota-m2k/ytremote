@@ -44,7 +44,7 @@ enum class SourceType(val v:Int, val id:Int) {
 
 data class VideoItemFilter(val settings:Settings) {
 
-    private fun getQueryString():String {
+    private fun getQueryString(date:Long):String {
         val qb = QueryBuilder()
         if(settings.sourceType!=SourceType.DB) {
             qb.add("s", settings.sourceType.v)
@@ -58,11 +58,14 @@ data class VideoItemFilter(val settings:Settings) {
         if(!settings.category.isNullOrEmpty()) {
             qb.add("c", settings.category)
         }
+        if(date>0) {
+            qb.add("d","$date")
+        }
         return qb.queryString
     }
 
-    fun urlWithQueryString() : String {
-        val query = getQueryString()
+    fun urlWithQueryString(date:Long) : String {
+        val query = getQueryString(date)
         return if(query.isNotEmpty()) {
             "${settings.baseUrl}list?${query}"
         } else {
