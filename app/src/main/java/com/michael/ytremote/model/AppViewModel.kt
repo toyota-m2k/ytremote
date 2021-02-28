@@ -13,6 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
+import com.michael.ytremote.bind.list.ObservableList
+import com.michael.ytremote.utils.UtLogger
+import java.util.*
+import kotlin.concurrent.schedule
 
 interface IPlayerOwner {
     fun ownerResigned()
@@ -22,21 +26,24 @@ interface IPlayerOwner {
 class AppViewModel : ViewModel() {
     val refCount = MutableLiveData<Int>()
     val loading = MutableLiveData<Boolean>()
-    val videoList = MutableLiveData<List<VideoItem>>()
+    var lastUpdate : Long = 0L
+    val videoSources = ObservableList<VideoItem>()
     val currentVideo = MutableLiveData<VideoItem>()
     val playing = MutableLiveData<Boolean>()
     var currentId:String? = null
+
     private var player: SimpleExoPlayer? = null
     private var primaryOwner :WeakReference<IPlayerOwner>? = null
     private var secondaryOwner :WeakReference<IPlayerOwner>? = null
-
+    private var updateTimerTask: TimerTask? = null
     private var mSettings: Settings? = null
+
     var settings: Settings
         get() = mSettings!!
         set(v) {
             if(v!=mSettings) {
                 mSettings = v
-                updateVideoList()
+                refreshVideoList()
             }
         }
 
@@ -62,35 +69,74 @@ class AppViewModel : ViewModel() {
         release()
     }
 
-    fun updateVideoList() {
+    fun refreshVideoList() {
+        UtLogger.debug("refreshVideoList")
         viewModelScope.launch {
             if(loading.value == true) {
                 return@launch
             }
             loading.value = true
-            val list = withContext(Dispatchers.Default) {
+            val src = withContext(Dispatchers.Default) {
                 VideoListSource.retrieve()
             }
-            if(list!=null) {
-                videoList.value = list
+            lastUpdate = src?.modifiedDate ?: 0L
+            loading.value = false
+
+            if(src!=null) {
+                UtLogger.debug("refreshVideoList count=${src.list.count()}")
+                videoSources.replace(src.list)
+                if(updateTimerTask==null) {
+                    updateTimerTask = Timer().run {
+                        schedule(60000,60000) {
+                            updateVideoList()
+                        }
+                    }
+                }
+            } else {
+                UtLogger.debug("refreshVideoList empty")
+                videoSources.clear()
+                updateTimerTask?.cancel()
+                updateTimerTask = null
+            }
+        }
+    }
+
+    private fun updateVideoList() {
+        UtLogger.debug("updateVideoList")
+
+        viewModelScope.launch {
+            if(loading.value == true) {
+                return@launch
+            }
+            if(lastUpdate==0L) {
+                return@launch
+            }
+
+            loading.value = true
+            val src = withContext(Dispatchers.Default) {
+                VideoListSource.retrieve(lastUpdate)
             }
             loading.value = false
+            if(src!=null&&src.list.isNotEmpty()) {
+                UtLogger.debug("updateVideoList count=${src.list.count()}")
+                videoSources.addAll(src.list)
+            } else {
+                UtLogger.debug("updateVideoList empty")
+            }
         }
     }
 
     fun nextVideo() {
-        val list = videoList.value ?: return
-        val index = list.indexOf(currentVideo.value) + 1
-        if(index<list.count()) {
-            currentVideo.value = list[index]
+        val index = videoSources.indexOf(currentVideo.value) + 1
+        if(index<videoSources.count()) {
+            currentVideo.value = videoSources[index]
         }
     }
 
     fun prevVideo() {
-        val list = videoList.value ?: return
-        val index = list.indexOf(currentVideo.value) - 1
+        val index = videoSources.indexOf(currentVideo.value) - 1
         if(0<=index) {
-            currentVideo.value = list[index]
+            currentVideo.value = videoSources[index]
         }
     }
 
@@ -116,6 +162,8 @@ class AppViewModel : ViewModel() {
         super.onCleared()
         player?.release()
         player = null
+        updateTimerTask?.cancel()
+        updateTimerTask = null
     }
 
     companion object {

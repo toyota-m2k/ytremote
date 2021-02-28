@@ -17,12 +17,6 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel:MainViewModel
     private lateinit var binding:FragmentHomeBinding
 
-//    private val videoUrl:String?
-//        get() {
-//            val id = viewModel.currentVideo.value?.id ?: return null
-//            return HostInfo.videoUrl(id)
-//        }
-
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -34,38 +28,10 @@ class HomeFragment : Fragment() {
             model = viewModel
         }
 
-//        homeViewModel =
-//                ViewModelProvider(this).get(HomeViewModel::class.java)
-//        val root = inflater.inflate(R.layout.fragment_home, container, false)
-//        val textView: TextView = root.findViewById(R.id.text_home)
-//        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
-
-//        viewModel.currentVideo.observe(viewLifecycleOwner) {
-//            videoUrl?.let { url ->
-//                binding.playerView.url = url
-//            }
-//        }
-
         viewModel.player.observe(requireActivity()) {
             binding.playerView.setPlayer(it)
         }
 
-//        binding.playerView.endReachedListener.add("homeFragment") {
-//            CoroutineScope(Dispatchers.Main).launch {
-//                viewModel.appViewModel.nextVideo()
-//            }
-//        }
-
-//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
-//            visibility = View.VISIBLE
-//            setOnClickListener { viewModel.appViewModel.prevVideo() }
-//        }
-//        binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
-//            visibility = View.VISIBLE
-//            setOnClickListener { viewModel.appViewModel.nextVideo() }
-//        }
         if(FullscreenVideoActivity.supportPinP) {
             binding.playerView.findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
                 visibility = View.VISIBLE

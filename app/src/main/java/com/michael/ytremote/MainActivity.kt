@@ -7,9 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.distinctUntilChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
+import com.michael.bindit.Binder
+import com.michael.bindit.impl.RecycleViewBinding
+import com.michael.ytremote.bind.list.ObservableList
+import com.michael.ytremote.bind.list.RecyclerViewAdapter
 import com.michael.ytremote.data.NetClient
 import com.michael.ytremote.data.VideoItem
 import com.michael.ytremote.databinding.ActivityMainBinding
@@ -27,9 +28,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var handlers:Handlers
     private lateinit var drawerAnim :AnimSet
     private lateinit var toolbarAnim :AnimSequence
+    private lateinit var binder:Binder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binder = Binder()
         viewModel = MainViewModel.instanceFor(this)
         handlers = Handlers()
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main).apply {
@@ -44,49 +47,55 @@ class MainActivity : AppCompatActivity() {
         toolbarAnim = AnimSequence().apply {
             add( AnimSet().apply {
                 add(ViewSizeAnimChip(binding.micSpacer, 40, 0, height = true))
-//                add(ViewVisibilityAnimationChip(binding.fab, startVisible = true, endVisible = false))
             })
             add(AnimSet().apply{
                 add(ViewVisibilityAnimationChip(binding.micOpenToolbar, startVisible = false, endVisible = true))
             })
         }
-//        binding.micOpenToolbar.visibility = View.VISIBLE
-
-//        val fab: FloatingActionButton = findViewById(R.id.fab)
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
-//        }
-
-//        viewModel.appViewModel.playing.observe(this) {
-//        }
 
         binding.videoList.run {
-            adapter = ListAdapter()
+//            adapter = ListAdapter()
             layoutManager = LinearLayoutManager(this@MainActivity)
             setHasFixedSize(true)
         }
-        viewModel.videoList.observe(this) {
-            (binding.videoList.adapter as? ListAdapter)?.items = it
-            if(it.isNotEmpty()==true && viewModel.playOnMainPlayer.value!=true) {
+
+        viewModel.videoSources.addListener(this) {
+            if( viewModel.playOnMainPlayer.value!=true && (it.kind == ObservableList.MutationKind.REFRESH || it.kind==ObservableList.MutationKind.INSERT)) {
                 handlers.showDrawer(true)
             }
         }
+
+        binder.register(RecycleViewBinding(
+            viewModel.videoSources, binding.videoList).apply {
+                view.adapter = RecyclerViewAdapter.SimpleWithDataBinding<VideoItem, ListItemBinding>(this@MainActivity, list,
+                    createView = { parent, type ->
+                        DataBindingUtil.inflate<ListItemBinding>(LayoutInflater.from(parent.context), R.layout.list_item, parent, false).apply { lifecycleOwner = parent.lifecycleOwner() }
+                    },
+                    bind = { b, item ->
+                        b.model = VideoItemViewModel(item, viewModel)
+                        b.executePendingBindings()
+                    })
+            }
+        )
+
         viewModel.showSidePanel.distinctUntilChanged().observe(this){
             UtLogger.debug("Drawer:(${it==true})")
             drawerAnim.animate(it==true)
         }
+
         val med = ToolbarAnimationMediator()
         viewModel.playOnMainPlayer.observe(this) {
             if(it==true) {
                 UtLogger.debug("PLY: playing --> hide toolbar")
                 //toolbarAnim.animate(false)
                 med.request(false, 2000)
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else {
+                handlers.showDrawer(true)
                 UtLogger.debug("PLY: !playing --> show toolbar")
 //                toolbarAnim.animate(true)
                 med.request(true, 300)
-            }
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)            }
         }
 
         if(intent?.action == Intent.ACTION_SEND) {
@@ -168,8 +177,8 @@ class MainActivity : AppCompatActivity() {
 //            toolbarAnim.animate(show)
 //        }
 
-        fun update() {
-            viewModel.update()
+        fun refresh() {
+            viewModel.refresh()
         }
 
 
@@ -178,35 +187,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class ViewHolder(private val binding:ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(videoItem:VideoItem) {
-            binding.model = VideoItemViewModel(videoItem, viewModel)
-            binding.executePendingBindings()
-        }
-    }
-
-    inner class ListAdapter : RecyclerView.Adapter<ViewHolder>() {
-        var items:List<VideoItem>? = null
-            set(v) {
-                field = v
-                notifyDataSetChanged()
-            }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val binding = DataBindingUtil.inflate<ListItemBinding>(LayoutInflater.from(parent.context), R.layout.list_item, parent, false).apply {
-                lifecycleOwner = parent.lifecycleOwner()
-            }
-            return ViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val v = items?.get(position) ?: return
-            holder.bind(v)
-        }
-
-        override fun getItemCount(): Int {
-            return items?.count() ?: 0
-        }
-
-    }
+//    inner class ViewHolder(private val binding:ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+//        fun bind(videoItem:VideoItem) {
+//            binding.model = VideoItemViewModel(videoItem, viewModel)
+//            binding.executePendingBindings()
+//        }
+//    }
+//
+//    inner class ListAdapter : RecyclerView.Adapter<ViewHolder>() {
+//        var items:List<VideoItem>? = null
+//            set(v) {
+//                field = v
+//                notifyDataSetChanged()
+//            }
+//
+//        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+//            val binding = DataBindingUtil.inflate<ListItemBinding>(LayoutInflater.from(parent.context), R.layout.list_item, parent, false).apply {
+//                lifecycleOwner = parent.lifecycleOwner()
+//            }
+//            return ViewHolder(binding)
+//        }
+//
+//        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+//            val v = items?.get(position) ?: return
+//            holder.bind(v)
+//        }
+//
+//        override fun getItemCount(): Int {
+//            return items?.count() ?: 0
+//        }
+//
+//    }
 }

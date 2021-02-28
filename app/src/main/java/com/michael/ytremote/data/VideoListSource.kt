@@ -26,42 +26,13 @@ data class VideoItem(val id:String,val name:String, val start:Long, val end:Long
         get() = MicClipping(start,end)
 }
 
-object VideoListSource {
-//    private var listRetrieved:((List<VideoItem>)->Unit)? = null
-//
-//    var filter:VideoItemFilter? = null
-//
-//    @ExperimentalCoroutinesApi
-//    val sourceFlow: Flow<List<VideoItem>> = callbackFlow {
-//        offer(listOf())
-//        listRetrieved = { list->
-//            offer(list)
-//        }
-//        awaitClose {
-//            listRetrieved = null
-//        }
-//    }
-//
-//    fun update() {
-//        CoroutineScope(Dispatchers.Default).launch {
-//            val list = retrieve(filter)
-//            if(null!=list) {
-//                listRetrieved?.invoke(list)
-//            }
-//        }
-//    }
-
-//    public const val urlBase = "http://192.168.0.12:3500/ytplayer"
-//
-//    private const val listUrl = "http://192.168.0.12:3500/ytplayer/list"
-
-    suspend fun retrieve() : List<VideoItem>? {
-        val url = AppViewModel.instance.settings.listUrl()
+data class VideoListSource(val list:List<VideoItem>, val modifiedDate:Long) {
+    suspend fun checkUpdate(date:Long) : Boolean {
+        val url = AppViewModel.instance.settings.checkUrl(date)
         val req = Request.Builder()
-                .url(url)
-                .get()
-                .build()
-
+            .url(url)
+            .get()
+            .build()
         return try {
             val json = NetClient.executeAsync(req).use { res ->
                 if (res.code == 200) {
@@ -73,11 +44,40 @@ object VideoListSource {
                     throw IllegalStateException("Server Response Error (${res.code})")
                 }
             }
-            val jsonList = json.getJSONArray("list") ?: throw IllegalStateException("Server Response Null List.")
-            jsonList.toIterable().map { j -> VideoItem(j as JSONObject) }
-        } catch (e: Throwable) {
+            json.getString("update") == "1"
+        } catch(e:Throwable) {
             UtLogger.stackTrace(e)
-            return null
+            return false
+        }
+    }
+
+    companion object {
+        suspend fun retrieve(date:Long=0L): VideoListSource? {
+            val url = AppViewModel.instance.settings.listUrl(date)
+            val req = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+
+            return try {
+                val json = NetClient.executeAsync(req).use { res ->
+                    if (res.code == 200) {
+                        val body = withContext(Dispatchers.IO) {
+                            res.body?.string()
+                        } ?: throw IllegalStateException("Server Response No Data.")
+                        JSONObject(body)
+                    } else {
+                        throw IllegalStateException("Server Response Error (${res.code})")
+                    }
+                }
+                val lastUpdate = json.getString("date").toLong()
+                val jsonList = json.getJSONArray("list")
+                    ?: throw IllegalStateException("Server Response Null List.")
+                VideoListSource( jsonList.toIterable().map { j -> VideoItem(j as JSONObject) }, lastUpdate )
+            } catch (e: Throwable) {
+                UtLogger.stackTrace(e)
+                return null
+            }
         }
     }
 }

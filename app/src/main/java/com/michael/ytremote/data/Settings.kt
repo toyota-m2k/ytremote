@@ -31,8 +31,12 @@ data class Settings(
         get() = "http://${hostPort}/ytplayer/"
 
 
-    fun listUrl():String {
-        return VideoItemFilter(this).urlWithQueryString()
+    fun listUrl(date:Long):String {
+        return VideoItemFilter(this).urlWithQueryString(date)
+    }
+
+    fun checkUrl(date:Long):String {
+        return baseUrl + "check?date=${date}"
     }
 
     fun videoUrl(id:String):String {
