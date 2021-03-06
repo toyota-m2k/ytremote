@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         binder.register(RecycleViewBinding(
             viewModel.videoSources, binding.videoList).apply {
                 view.adapter = RecyclerViewAdapter.SimpleWithDataBinding<VideoItem, ListItemBinding>(this@MainActivity, list,
-                    createView = { parent, type ->
+                    createView = { parent, _ ->
                         DataBindingUtil.inflate<ListItemBinding>(LayoutInflater.from(parent.context), R.layout.list_item, parent, false).apply { lifecycleOwner = parent.lifecycleOwner() }
                     },
                     bind = { b, item ->
@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
         if(rawUrl==null||(!rawUrl.startsWith("https://")&&!rawUrl.startsWith("http://"))) {
             return
         }
-        val yturl = rawUrl.split("\r","\n"," ","\t").filter {it!=null}.firstOrNull()
+        val yturl = rawUrl.split("\r","\n"," ","\t").filter {!it.isBlank()}.firstOrNull()
         if(yturl==null) {
             return
         }

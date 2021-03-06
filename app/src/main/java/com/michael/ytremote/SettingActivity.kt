@@ -39,7 +39,7 @@ class SettingActivity : AppCompatActivity() {
 //                true
 //            } else false
 //        }
-        binding.hostAddrEdit.setOnEditorActionListener { v, actionId, event ->
+        binding.hostAddrEdit.setOnEditorActionListener { _, actionId, _ ->
             if(actionId== EditorInfo.IME_ACTION_DONE) {
                 viewModel.addHost()
                 true
@@ -82,7 +82,7 @@ class SettingActivity : AppCompatActivity() {
                 .apply {
                     setAdapter(adapter)
                     anchorView = view
-                    setOnItemClickListener { parent, view, position, id ->
+                    setOnItemClickListener { _, _, position, _ ->
                         val cat = adapter.getItem(position)
                         if(null!=cat) {
                             viewModel.categoryList.category = cat

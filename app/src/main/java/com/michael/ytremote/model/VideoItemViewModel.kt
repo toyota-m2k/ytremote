@@ -23,7 +23,7 @@ class VideoItemViewModel(private val videoItem:VideoItem, private val listModel:
     val isSelected: LiveData<Boolean> = listModel.appViewModel.currentVideo.map {
         it?.id == videoItem.id
     }
-    fun onSelected(view: View) {
+    fun onSelected(@Suppress("UNUSED_PARAMETER") view: View) {
         listModel.appViewModel.currentVideo.value = videoItem
         viewModelScope.launch {
             delay(500)
