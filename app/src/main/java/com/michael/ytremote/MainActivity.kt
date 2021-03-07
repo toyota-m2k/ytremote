@@ -1,5 +1,7 @@
 package com.michael.ytremote
 
+import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
+import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -7,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.distinctUntilChanged
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.michael.bindit.Binder
 import com.michael.bindit.impl.RecycleViewBinding
 import com.michael.ytremote.bind.list.ObservableList
@@ -132,6 +135,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun urlFromClipboard():String? {
+        val cm = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        if(cm.hasPrimaryClip()) {
+            val item = cm.primaryClip?.getItemAt(0) ?: return null
+            val txt = item.text as? String
+            if (txt != null && txt.startsWith("https://")) {
+                return txt
+            }
+            val url = item.uri
+            if (url != null) {
+                return url.toString()
+            }
+        }
+        return null
+    }
+
     /**
      * 動画再生開始、停止時のツールバー表示・非表示アニメーションが連続で実行されてがちょんがちょんなるのを防ぐための調停者
      */
@@ -184,6 +203,16 @@ class MainActivity : AppCompatActivity() {
 
         fun openSetting() {
             startActivity(Intent(this@MainActivity, SettingActivity::class.java))
+        }
+
+        fun acceptUrl(anchor:View) {
+            val url = urlFromClipboard()
+            if(!url.isNullOrBlank()) {
+                registerUrl(url)
+                Snackbar.make(anchor, url, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+
+            }
         }
     }
 
