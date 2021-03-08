@@ -25,9 +25,9 @@ class VideoItemViewModel(private val videoItem:VideoItem, private val listModel:
     }
     fun onSelected(@Suppress("UNUSED_PARAMETER") view: View) {
         listModel.appViewModel.currentVideo.value = videoItem
-        viewModelScope.launch {
-            delay(500)
-            listModel.showSidePanel.value = false
-        }
+//        viewModelScope.launch {
+//            delay(500)
+//            listModel.showSidePanel.value = false
+//        }
     }
 }

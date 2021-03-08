@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
             })
             add(AnimSet().apply{
                 add(ViewVisibilityAnimationChip(binding.micOpenToolbar, startVisible = false, endVisible = true))
+                add(ViewVisibilityAnimationChip(binding.fab, startVisible = true, endVisible = false))
             })
         }
 
@@ -65,6 +66,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.videoSources.addListener(this) {
             if( viewModel.playOnMainPlayer.value!=true && (it.kind == ObservableList.MutationKind.REFRESH || it.kind==ObservableList.MutationKind.INSERT)) {
                 handlers.showDrawer(true)
+            }
+            if(it.kind==ObservableList.MutationKind.INSERT && viewModel.videoSources.count()>0) {
+                binding.videoList.scrollToPosition(viewModel.videoSources.count()-1)
             }
         }
 
@@ -81,6 +85,16 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
+        viewModel.appViewModel.currentVideo.observe(this) {
+            val pos = viewModel.videoSources.indexOf(it)
+            if(pos>=0) {
+                binding.videoList.scrollToPosition(pos)
+            }
+//            val v = binding.videoList.layoutManager?.findViewByPosition(pos) ?: return@observe
+//            binding.videoList.layoutManager?.scrollToPosition(v.top)
+//            UtLogger.debug("scroll to ${v.top}")
+        }
+
         viewModel.showSidePanel.distinctUntilChanged().observe(this){
             UtLogger.debug("Drawer:(${it==true})")
             drawerAnim.animate(it==true)
@@ -94,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 med.request(false, 2000)
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else {
-                handlers.showDrawer(true)
+//                handlers.showDrawer(true)
                 UtLogger.debug("PLY: !playing --> show toolbar")
 //                toolbarAnim.animate(true)
                 med.request(true, 300)
@@ -167,6 +181,7 @@ class MainActivity : AppCompatActivity() {
                 if(requested!=actual) {
                     actual = requested
                     toolbarAnim.animate(requested)
+                    handlers.showDrawer(requested)
                 }
             }
         }
@@ -211,7 +226,9 @@ class MainActivity : AppCompatActivity() {
                 registerUrl(url)
                 Snackbar.make(anchor, url, Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
-
+            } else {
+                Snackbar.make(anchor, "No data to request.", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
             }
         }
     }
