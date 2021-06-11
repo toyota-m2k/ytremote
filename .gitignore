@@ -14,3 +14,6 @@
 .externalNativeBuild
 .cxx
 .idea/dictionaries/mitsuki.xml
+.idea/misc.xml
+.idea/runConfigurations.xml
+.idea/compiler.xml
