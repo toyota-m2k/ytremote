@@ -3,20 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <import type="android.view.View"/>
-        <variable
-            name="model"
-            type="com.michael.ytremote.model.MainViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black"
         tools:context=".ui.home.HomeFragment">
 
-        <com.michael.ytremote.player.MicVideoPlayer
+        <io.github.toyota32k.ytremote.player.MicVideoPlayer
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -29,6 +22,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             />
         <ImageView
+            android:id="@+id/unavailable_icon_view"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="#00000000"
@@ -38,7 +32,6 @@
             app:layout_constraintEnd_toEndOf="@+id/player_view"
             app:layout_constraintTop_toTopOf="@+id/player_view"
             app:layout_constraintBottom_toBottomOf="@+id/player_view"
-            android:visibility="@{model.hasPlayer ? View.GONE : View.VISIBLE}"
             />
 
 

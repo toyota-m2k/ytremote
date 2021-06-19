@@ -3,12 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="model"
-            type="com.michael.ytremote.model.VideoItemViewModel" />
-    </data>
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -20,14 +14,13 @@
         >
 
         <TextView
+            android:id="@+id/video_item_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start|center_vertical"
-            android:background="@{model.isSelected ? @color/purple_700 : @color/list_item_bg}"
             android:padding="5dp"
-            android:text="@{model.name}"
             android:textColor="@color/white"
-            android:onClick="@{model::onSelected}"
+            android:clickable="true"
             tools:text="abcdeig"
             />
 
