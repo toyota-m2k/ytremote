@@ -69,11 +69,9 @@ class MicVideoPlayer @JvmOverloads constructor(
     fun setPlayer(player:SimpleExoPlayer?) {
         mBindings.playerView.player = player
         if(player!=null) {
-            player.addListener(mEventListener)
-            player.addVideoListener(mVideoListener)
+            player.addListener(mVideoListener)
         } else {
-            mPlayer?.removeListener(mEventListener)
-            mPlayer?.removeVideoListener(mVideoListener)
+            mPlayer?.removeListener(mVideoListener)
         }
         mPlayer = player
     }
@@ -82,16 +80,14 @@ class MicVideoPlayer @JvmOverloads constructor(
 
     // region ExoPlayer - Event Handler
 
-    private val mVideoListener = object : VideoListener {
+    private val mVideoListener = object : Player.Listener {
         override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
             mBindings.setVideoSize(width.toFloat(), height.toFloat())
         }
 
         override fun onRenderedFirstFrame() {
         }
-    }
 
-    private val mEventListener = object : Player.EventListener {
         override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
             // speed, pitch, skipSilence, scaledUsPerMs
         }
@@ -228,8 +224,7 @@ class MicVideoPlayer @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
-        mPlayer?.removeListener(mEventListener)
-        mPlayer?.removeVideoListener(mVideoListener)
+        mPlayer?.removeListener(mVideoListener)
         mBindings.playerView.player = null
 
         sourceChangedListener.clear()

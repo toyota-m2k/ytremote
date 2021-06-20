@@ -49,6 +49,9 @@ class MainActivity : AppCompatActivity() {
         val selectedColor = getColor(R.color.purple_700)
 
         init {
+            videoList.layoutManager = LinearLayoutManager(this@MainActivity)
+            videoList.setHasFixedSize(true)
+
             val owner = this@MainActivity
             register(
                 viewModel.commandShowDrawer.connectAndBind(owner, showDrawerButton) { viewModel.showSidePanel.value = true },
@@ -118,11 +121,6 @@ class MainActivity : AppCompatActivity() {
                 add(ViewVisibilityAnimationChip(binder.openToolbarButton, startVisible = false, endVisible = true))
                 add(ViewVisibilityAnimationChip(binder.fab, startVisible = true, endVisible = false))
             })
-        }
-
-        binder.videoList.run {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            setHasFixedSize(true)
         }
 
         viewModel.videoSources.addListener(this) {

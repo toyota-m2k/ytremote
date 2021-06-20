@@ -24,20 +24,20 @@
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
             tools:visibility="visible"
-            app:srcCompat="@drawable/ic_prev" />
+            app:srcCompat="@drawable/ic_prev"
+            app:tint="@color/white" />
 
         <ImageButton
             android:id="@+id/mic_ctr_exo_next"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
             tools:visibility="visible"
-            app:srcCompat="@drawable/ic_next" />
+            app:srcCompat="@drawable/ic_next"
+            app:tint="@color/white" />
 
 <!--        <ImageButton-->
 <!--            android:id="@id/exo_rew"-->
@@ -61,20 +61,20 @@
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
             tools:visibility="visible"
-            app:srcCompat="@drawable/ic_play" />
+            app:srcCompat="@drawable/ic_play"
+            app:tint="@color/white" />
 
         <ImageButton
             android:id="@id/exo_pause"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
             tools:visibility="visible"
-            app:srcCompat="@drawable/ic_pause" />
+            app:srcCompat="@drawable/ic_pause"
+            app:tint="@color/white" />
 
 <!--        <ImageButton-->
 <!--            android:id="@id/exo_ffwd"-->
@@ -91,29 +91,29 @@
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
             tools:visibility="visible"
-            app:srcCompat="@drawable/ic_pinp" />
+            app:srcCompat="@drawable/ic_pinp"
+            app:tint="@color/white" />
 
         <ImageButton
             android:id="@+id/mic_ctr_full_button"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
             tools:visibility="visible"
-            app:srcCompat="@drawable/ic_fullscreen" />
+            app:srcCompat="@drawable/ic_fullscreen"
+            app:tint="@color/white" />
 
         <ImageButton
             android:id="@+id/mic_ctr_close_button"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
             android:background="?android:attr/selectableItemBackground"
-            android:tint="@color/white"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_close" />
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@color/white" />
 
     </LinearLayout>
 
@@ -128,7 +128,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="18dp"
-            android:layout_margin="5dp"
+            android:layout_margin="8dp"
             android:background="@color/white"
             android:layout_gravity="top"
             />

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.map
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButtonToggleGroup
 import io.github.toyota32k.bindit.*
@@ -34,8 +35,8 @@ class SettingActivity : AppCompatActivity() {
 
         init {
             settingsToolbar.title ="${PackageUtil.appName(activity)} - v${PackageUtil.getVersion(activity)}"
-//            hostList.layoutManager = LinearLayoutManager(activity)
-//            hostList.setHasFixedSize(true)
+            hostList.layoutManager = LinearLayoutManager(activity)
+            hostList.setHasFixedSize(true)
 
             register(
                 RadioGroupBinding.create(activity, sourceTypeSelector, model.sourceType, SourceType.idResolver, BindingMode.TwoWay),
@@ -43,11 +44,11 @@ class SettingActivity : AppCompatActivity() {
                 MaterialToggleButtonGroupBinding.create(activity, markSelector, model.markList, Mark.idResolver, BindingMode.TwoWay),
                 EditTextBinding.create(activity, hostAddrEdit, model.editingHost),
                 TextBinding.create(activity, categoryButton, model.categoryList.currentLabel.map { it ?: "All" }),
-//                model.commandAddToList.connectAndBind(activity, addToListButton) { model.addHost() },
+                model.commandAddToList.connectAndBind(activity, addToListButton) { model.addHost() },
                 model.commandAddToList.connectViewEx(hostAddrEdit),
                 model.commandCategory.connectAndBind(activity, categoryButton, activity::selectCategory),
 
-                RecycleViewBinding.create<String>(activity, hostList, model.hostList.value!!, R.layout.host_list_item) { binder, view, address ->
+                RecycleViewBinding.createHeightWrapContent<String>(activity, hostList, model.hostList.value!!, R.layout.host_list_item) { binder, view, address ->
                     val textView = view.findViewById<TextView>(R.id.address_text)
                     textView.text = address
                     binder.register(

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Binder
 import io.github.toyota32k.bindit.BoolConvert
 import io.github.toyota32k.bindit.VisibilityBinding
@@ -18,16 +19,24 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
 
     inner class HomeViewBinder(owner:LifecycleOwner, view:View):Binder() {
-        val playerView: MicVideoPlayer = view.findViewById(R.id.player_view)
+        private val playerBinder = Binder()
+        private val playerView: MicVideoPlayer = view.findViewById(R.id.player_view)
         init {
             register(
+                playerBinder,
                 VisibilityBinding.create(owner, view.findViewById(R.id.unavailable_icon_view), viewModel.hasPlayer, BoolConvert.Inverse),
-                viewModel.commandFullscreen.connectViewEx(view.findViewById(R.id.mic_ctr_full_button))
             )
-            if(FullscreenVideoActivity.supportPinP) {
-                view.findViewById<View>(R.id.mic_ctr_pinp_button).also {
-                    register(viewModel.commandPinP.connectViewEx(it))
-                    it.visibility = View.VISIBLE
+        }
+        fun connectPlayer(player: SimpleExoPlayer?) {
+            playerBinder.reset()
+            playerView.setPlayer(player)
+            if(player!=null) {
+                playerBinder.register(viewModel.commandFullscreen.connectViewEx(playerView.findViewById(R.id.mic_ctr_full_button)))
+                if (FullscreenVideoActivity.supportPinP) {
+                    playerView.findViewById<View>(R.id.mic_ctr_pinp_button).also {
+                        playerBinder.register(viewModel.commandPinP.connectViewEx(it))
+                        it.visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -44,7 +53,7 @@ class HomeFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_home, container, false).also { view->
             binder = HomeViewBinder(requireActivity(), view)
             viewModel.player.observe(requireActivity()) {
-                binder.playerView.setPlayer(it)
+                binder.connectPlayer(it)
             }
         }
     }
