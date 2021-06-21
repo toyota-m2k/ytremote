@@ -24,6 +24,8 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.exoplayer2.SimpleExoPlayer
+import io.github.toyota32k.bindit.Binder
+import io.github.toyota32k.bindit.ClickBinding
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.ytremote.R
 import io.github.toyota32k.ytremote.model.AppViewModel
@@ -47,7 +49,6 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
 
         private const val INTENT_NAME = "PlayVideo"
         private const val ACTION_TYPE_KEY = "ActionType"
-        private const val handlerName="fsa"
 
         // Fixed: classroom#3217
         // このActivityの呼び出し元（AmvVideoController)に対して、再生位置を返すための簡単な仕掛け。
@@ -136,13 +137,68 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
     private lateinit var receiver: BroadcastReceiver        // PinP中のコマンド（ブロードキャスト）を受け取るレシーバー
 
     // endregion
-    private val fsa_player: MicVideoPlayer  by lazy {
-        findViewById(R.id.fullscreen_player)
-    }
-    private val fsa_root: ConstraintLayout by lazy {
-        findViewById(R.id.fullscreen_root)
+//    private val fsa_player: MicVideoPlayer  by lazy {
+//        findViewById(R.id.fullscreen_player)
+//    }
+//    private val fsa_root: ConstraintLayout by lazy {
+//        findViewById(R.id.fullscreen_root)
+//    }
+
+    inner class FSBinder: Binder() {
+        var playerView = findViewById<MicVideoPlayer>(R.id.fullscreen_player)
+        var rootContainer = findViewById<ConstraintLayout>(R.id.fullscreen_root)
+        var playerBinder = Binder()
+        private val handlerName="fsa"
+
+        override fun dispose() {
+            super.dispose()
+            playerView.playerStateChangedListener.remove(handlerName)
+        }
+
+        init {
+            binder.register(playerBinder)
+            if(supportPinP) {
+                playerView.playerStateChangedListener.add(handlerName) { _, state ->
+                    if (isPinP) {
+                        val playing = when (state) {
+                            MicVideoPlayer.PlayerState.Playing -> true
+                            else -> false
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            playAction.isEnabled = !playing
+                            pauseAction.isEnabled = playing
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            playAction.setShouldShowIcon(!playing)
+                            pauseAction.setShouldShowIcon(playing)
+                        }
+                    }
+                }
+            }
+        }
+
+        fun connectPlayer(player: SimpleExoPlayer?) {
+            playerBinder.reset()
+            playerView.setPlayer(player)
+            if(player!=null) {
+                findViewById<ImageButton>(R.id.mic_ctr_close_button)?.also {
+                    it.visibility = View.VISIBLE
+                    playerBinder.register(ClickBinding(this@FullscreenVideoActivity, it) { finishAndRemoveTask() })
+                }
+                if (supportPinP) {
+                    playerView.findViewById<View>(R.id.mic_ctr_pinp_button)?.also {
+                        it.visibility = View.VISIBLE
+                        playerBinder.register(ClickBinding(this@FullscreenVideoActivity, it) {
+                            requestPinP = true
+                            enterPinP()
+                        })
+                    }
+                }
+            }
+        }
     }
 
+    lateinit var binder:FSBinder
     var appViewModel: AppViewModel? = null
 
     /**
@@ -157,25 +213,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
         appViewModel = AppViewModel.instance.apply {
             retainPlayer(this@FullscreenVideoActivity )
         }
-
-        if (supportPinP) {
-            fsa_player.playerStateChangedListener.add(handlerName) { _, state ->
-                if(isPinP) {
-                    val playing = when (state) {
-                        MicVideoPlayer.PlayerState.Playing -> true
-                        else -> false
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        playAction.isEnabled = !playing
-                        pauseAction.isEnabled = playing
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        playAction.setShouldShowIcon(!playing)
-                        pauseAction.setShouldShowIcon(playing)
-                    }
-                }
-            }
-        }
+        binder = FSBinder()
 
         if(null!=intent) {
             initWithIntent(intent)
@@ -184,34 +222,6 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             }
         }
 
-        /**
-         * 閉じるボタン
-         */
-        findViewById<ImageButton>(R.id.mic_ctr_close_button)?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener {
-                // finish()
-                // ここは、本来、finish()でもよい（onStop が呼ばれて、その中で finishAndRemoveTask()を呼んでいるから）はずだし、Android 10 (Pixel) では、そのように動作したが、
-                // Android 9 （HUAWEI）では、アクティビティが残ってしまったので、ここでも、finishAndRemoveTask()を呼ぶようにする。
-                // finishAndRemoveTaskを２回呼んで、本当に大丈夫なのか。
-                finishAndRemoveTask()
-            }
-        }
-
-        /**
-         * PinPボタン
-         */
-        findViewById<ImageButton>(R.id.mic_ctr_pinp_button)?.apply {
-            if (supportPinP) {     // PinPで起動後、全画面表示になるケースだけ、PinPボタンを表示する
-                visibility = View.VISIBLE
-                setOnClickListener {
-                    requestPinP = true
-                    enterPinP()
-                }
-            } else {
-                visibility = View.GONE
-            }
-        }
         UtLogger.debug("##FullscreenVideoActivity.onCreate -- exit")
     }
 
@@ -222,7 +232,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
         super.onDestroy()
         activityState.onDestroy()
 //        mSource = null
-        fsa_player.playerStateChangedListener.remove(handlerName)
+        binder.dispose()
         appViewModel?.releasePlayer(this)
         appViewModel = null
         UtLogger.debug("##FullscreenVideoActivity.onDestroy")
@@ -344,7 +354,8 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             window.insetsController?.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
             window.insetsController?.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         } else {
-            fsa_root.systemUiVisibility =
+            @Suppress("DEPRECATION")
+            binder.rootContainer.systemUiVisibility =
                     View.SYSTEM_UI_FLAG_LOW_PROFILE or
                     View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
@@ -403,7 +414,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
      */
     private fun onEnterPinP() {
         activityState.changeState(State.PINP)
-        fsa_player.showDefaultController = false
+        binder.playerView.showDefaultController = false
         receiver = object: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent == null||intent.action!=INTENT_NAME) {
@@ -411,9 +422,9 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
                 }
 
                 when(intent.getIntExtra(ACTION_TYPE_KEY, -1)) {
-                    Action.PAUSE.code -> fsa_player.pause()
-                    Action.PLAY.code -> fsa_player.play()
-                    Action.SEEK_TOP.code -> fsa_player.seekTo(0L)
+                    Action.PAUSE.code -> binder.playerView.pause()
+                    Action.PLAY.code -> binder.playerView.play()
+                    Action.SEEK_TOP.code -> binder.playerView.seekTo(0L)
                     else -> {}
                 }
             }
@@ -433,7 +444,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             // --> Activityを閉じる
             finishAndRemoveTask()
         } else {
-            fsa_player.showDefaultController = true
+            binder.playerView.showDefaultController = true
             if(reloadingPinP) {
                 // PinP中に、onNewIntent()で、pinpでの実行が要求された
                 // onNewIntent()が呼ばれるケースでは、システムが、PinPモードを強制的に解除してくるので、ここに入ってくる。
@@ -465,10 +476,10 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
     }
 
     override fun ownerResigned() {
-        fsa_player.setPlayer(null)
+        binder.connectPlayer(null)
     }
 
     override fun ownerAssigned(player: SimpleExoPlayer) {
-        fsa_player.setPlayer(player)
+        binder.connectPlayer(player)
     }
 }

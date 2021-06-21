@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.video.VideoListener
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.utils.lifecycleOwner
 import io.github.toyota32k.utils.setLayoutSize

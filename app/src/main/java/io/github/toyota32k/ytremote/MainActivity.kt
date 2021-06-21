@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
             register(
                 viewModel.commandShowDrawer.connectAndBind(owner, showDrawerButton) { viewModel.showSidePanel.value = true },
                 viewModel.commandShowDrawer.connectViewEx(openToolbarButton),
-                viewModel.commandHideDrawer.connectAndBind(owner, drawerGuard) { viewModel.showSidePanel.value = true },
+                viewModel.commandHideDrawer.connectAndBind(owner, drawerGuard) { viewModel.showSidePanel.value = false },
                 viewModel.commandSetting.connectAndBind(owner, settingButton) { startActivity(Intent(this@MainActivity, SettingActivity::class.java)) },
                 viewModel.commandPushUrl.connectAndBind(owner, fab) { acceptUrl( it?:return@connectAndBind ) },
                 viewModel.commandReloadList.connectAndBind(owner, reloadListButton) { viewModel.refresh() },

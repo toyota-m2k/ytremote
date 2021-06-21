@@ -31,9 +31,12 @@ class HomeFragment : Fragment() {
             playerBinder.reset()
             playerView.setPlayer(player)
             if(player!=null) {
-                playerBinder.register(viewModel.commandFullscreen.connectViewEx(playerView.findViewById(R.id.mic_ctr_full_button)))
+                playerView.findViewById<View>(R.id.mic_ctr_full_button)?.also {
+                    playerBinder.register(viewModel.commandFullscreen.connectViewEx(it))
+                    it.visibility = View.VISIBLE
+                }
                 if (FullscreenVideoActivity.supportPinP) {
-                    playerView.findViewById<View>(R.id.mic_ctr_pinp_button).also {
+                    playerView.findViewById<View>(R.id.mic_ctr_pinp_button)?.also {
                         playerBinder.register(viewModel.commandPinP.connectViewEx(it))
                         it.visibility = View.VISIBLE
                     }
@@ -58,5 +61,9 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        binder.connectPlayer(null)
+        super.onDestroyView()
+    }
 
 }
