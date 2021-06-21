@@ -46,6 +46,8 @@ class MainViewModel : ViewModel(), IPlayerOwner {
     val commandSetting = Command()
     val commandPushUrl = Command()
     val commandReloadList = Command()
+    val commandSyncToHost = Command()
+    val commandSyncFromHost = Command()
     val commandFullscreen = Command()
     val commandPinP = Command()
     // endregion

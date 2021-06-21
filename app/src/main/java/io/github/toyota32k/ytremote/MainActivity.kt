@@ -18,6 +18,7 @@ import io.github.toyota32k.bindit.ClickBinding
 import io.github.toyota32k.bindit.RecycleViewBinding
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLogger
+import io.github.toyota32k.ytremote.data.CurrentItemSynchronizer
 import io.github.toyota32k.ytremote.data.NetClient
 import io.github.toyota32k.ytremote.fragment.HomeFragment
 import io.github.toyota32k.ytremote.model.MainViewModel
@@ -49,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         val drawerGuard:View = findViewById(R.id.drawer_guard)
         val settingButton:View = findViewById(R.id.setting_button)
         val reloadListButton:View = findViewById(R.id.reload_list_button)
+        val syncToHostButton:View = findViewById(R.id.sync_to_host)
+        val syncFromHostButton:View = findViewById(R.id.sync_from_host)
 
         val normalColor = getColor(R.color.list_item_bg)
         val selectedColor = getColor(R.color.purple_700)
@@ -65,6 +68,8 @@ class MainActivity : AppCompatActivity() {
                 viewModel.commandSetting.connectAndBind(owner, settingButton) { startActivity(Intent(this@MainActivity, SettingActivity::class.java)) },
                 viewModel.commandPushUrl.connectAndBind(owner, fab) { acceptUrl( it?:return@connectAndBind ) },
                 viewModel.commandReloadList.connectAndBind(owner, reloadListButton) { viewModel.refresh() },
+                viewModel.commandSyncFromHost.connectAndBind(owner, syncFromHostButton) { CurrentItemSynchronizer.syncFrom() },
+                viewModel.commandSyncToHost.connectAndBind(owner, syncToHostButton) { CurrentItemSynchronizer.syncTo() },
                 viewModel.commandFullscreen.bind(owner) { showFullscreenViewer(false) },
                 viewModel.commandPinP.bind(owner) { showFullscreenViewer(true) },
                 RecycleViewBinding.create(owner, videoList, viewModel.videoSources, R.layout.list_item) { binder, view, videoItem ->

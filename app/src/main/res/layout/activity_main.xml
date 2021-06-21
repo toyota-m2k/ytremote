@@ -144,12 +144,36 @@
                 >
                 <ImageButton
                     android:id="@+id/reload_list_button"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="44dp"
+                    android:layout_height="36dp"
                     android:textAllCaps="false"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
                     android:src="@drawable/ic_refresh"
+                    app:rippleColor="@color/teal_200"
+                    android:contentDescription="@string/refresh"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="@color/white" />
+                <ImageButton
+                    android:id="@+id/sync_to_host"
+                    android:layout_width="44dp"
+                    android:layout_height="36dp"
+                    android:textAllCaps="false"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:src="@drawable/ic_upload"
+                    app:rippleColor="@color/teal_200"
+                    android:contentDescription="@string/refresh"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="@color/white" />
+                <ImageButton
+                    android:id="@+id/sync_from_host"
+                    android:layout_width="44dp"
+                    android:layout_height="36dp"
+                    android:textAllCaps="false"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:src="@drawable/ic_download"
                     app:rippleColor="@color/teal_200"
                     android:contentDescription="@string/refresh"
                     android:background="?attr/selectableItemBackgroundBorderless"
