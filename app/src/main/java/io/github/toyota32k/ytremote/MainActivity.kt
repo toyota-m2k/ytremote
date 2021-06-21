@@ -19,6 +19,7 @@ import io.github.toyota32k.bindit.RecycleViewBinding
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.ytremote.data.NetClient
+import io.github.toyota32k.ytremote.fragment.HomeFragment
 import io.github.toyota32k.ytremote.model.MainViewModel
 import io.github.toyota32k.ytremote.player.FullscreenVideoActivity
 import io.github.toyota32k.ytremote.utils.AnimSequence
@@ -30,6 +31,10 @@ import okhttp3.Request
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        val logger get() = MainViewModel.logger
+    }
+
     private lateinit var viewModel: MainViewModel
     private lateinit var drawerAnim : AnimSet
     private lateinit var toolbarAnim : AnimSequence
@@ -97,6 +102,7 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        logger.debug()
         super.onCreate(savedInstanceState)
         try {
             val view = layoutInflater.inflate(R.layout.activity_main, null)
@@ -164,6 +170,13 @@ class MainActivity : AppCompatActivity() {
                 registerUrl(intent.getStringExtra(Intent.EXTRA_TEXT))
             }
         }
+
+        if(savedInstanceState==null) {
+            val homeFragment = HomeFragment()
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, homeFragment)
+                .commit()
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -173,6 +186,12 @@ class MainActivity : AppCompatActivity() {
                 registerUrl(intent.getStringExtra(Intent.EXTRA_TEXT))
             }
         }
+    }
+
+    override fun onDestroy() {
+        logger.debug()
+        super.onDestroy()
+        binder.dispose()
     }
 
     fun registerUrl(rawUrl:String?) {

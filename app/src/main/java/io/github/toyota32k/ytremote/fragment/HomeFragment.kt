@@ -10,12 +10,17 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Binder
 import io.github.toyota32k.bindit.BoolConvert
 import io.github.toyota32k.bindit.VisibilityBinding
+import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.ytremote.R
 import io.github.toyota32k.ytremote.model.MainViewModel
 import io.github.toyota32k.ytremote.player.FullscreenVideoActivity
 import io.github.toyota32k.ytremote.player.MicVideoPlayer
 
 class HomeFragment : Fragment() {
+    companion object {
+        val logger get() = MainViewModel.logger
+    }
+
     private lateinit var viewModel: MainViewModel
 
     inner class HomeViewBinder(owner:LifecycleOwner, view:View):Binder() {
@@ -52,6 +57,7 @@ class HomeFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
+        logger.debug()
         viewModel = MainViewModel.instanceFor(requireActivity())
         return inflater.inflate(R.layout.fragment_home, container, false).also { view->
             binder = HomeViewBinder(requireActivity(), view)
@@ -62,6 +68,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        logger.debug()
         binder.connectPlayer(null)
         super.onDestroyView()
     }

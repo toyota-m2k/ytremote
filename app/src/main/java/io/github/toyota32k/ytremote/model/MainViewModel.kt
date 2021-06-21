@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Command
 import io.github.toyota32k.bindit.list.ObservableList
+import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.utils.combineLatest
 import io.github.toyota32k.ytremote.data.VideoItem
 
@@ -53,5 +54,6 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         fun instanceFor(activity: ViewModelStoreOwner):MainViewModel {
             return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(MainViewModel::class.java)
         }
+        val logger = UtLog("MainView")
     }
 }
