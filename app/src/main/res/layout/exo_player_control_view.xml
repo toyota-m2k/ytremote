@@ -30,6 +30,26 @@
             app:tint="@color/white" />
 
         <ImageButton
+            android:id="@+id/mic_ctr_exo_prev_chapter"
+            android:layout_width="@dimen/mic_media_button_width"
+            android:layout_height="@dimen/mic_media_button_height"
+            android:background="?android:attr/selectableItemBackground"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:srcCompat="@drawable/ic_prev_chapter"
+            app:tint="@color/white" />
+
+        <ImageButton
+            android:id="@+id/mic_ctr_exo_next_chapter"
+            android:layout_width="@dimen/mic_media_button_width"
+            android:layout_height="@dimen/mic_media_button_height"
+            android:background="?android:attr/selectableItemBackground"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:srcCompat="@drawable/ic_next_chapter"
+            app:tint="@color/white" />
+
+        <ImageButton
             android:id="@+id/mic_ctr_exo_next"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
@@ -125,11 +145,12 @@
         app:layout_constraintLeft_toRightOf="@id/exo_position"
         app:layout_constraintRight_toLeftOf="@id/exo_duration">
 
-        <View
+        <com.michael.ytremote.view.ChapterView
+            android:id="@+id/chapter_view"
             android:layout_width="match_parent"
-            android:layout_height="18dp"
+            android:layout_height="12dp"
             android:layout_margin="8dp"
-            android:background="@color/white"
+            android:background="@color/black"
             android:layout_gravity="top"
             />
 

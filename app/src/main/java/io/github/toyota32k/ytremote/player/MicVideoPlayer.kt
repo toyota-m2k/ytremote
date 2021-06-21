@@ -15,6 +15,8 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ClippingMediaSource
@@ -24,11 +26,14 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.michael.ytremote.view.ChapterView
 import io.github.toyota32k.utils.UtLogger
+import io.github.toyota32k.utils.combineLatest
 import io.github.toyota32k.utils.lifecycleOwner
 import io.github.toyota32k.utils.setLayoutSize
 import io.github.toyota32k.ytremote.R
 import io.github.toyota32k.ytremote.data.ChapterList
+import io.github.toyota32k.ytremote.data.VideoItem
 import io.github.toyota32k.ytremote.model.AppViewModel
 import io.github.toyota32k.ytremote.utils.*
 import kotlinx.coroutines.CoroutineScope
@@ -50,6 +55,31 @@ class MicVideoPlayer @JvmOverloads constructor(
         Playing,
         Paused
     }
+
+    class ChapterInfo {
+        val duration = MutableLiveData<Long>(0)
+        val chapterList = MutableLiveData<ChapterList?>(null)
+        val ready = combineLatest(duration,chapterList) { d,c-> d!!>0L&&c!=null }.distinctUntilChanged()
+        val chapterListIfReady get() = if(ready.value==true) chapterList.value else null
+
+        fun reset() {
+            duration.value = 0L
+            chapterList.value = null
+        }
+        fun update(view:ChapterView, current: VideoItem) {
+            val cl = chapterList.value
+            val dur = duration.value
+            if(dur!=null && dur>0L && cl!=null) {
+                if(cl.ownerId == current.id) {
+                    view.setChapterList(cl, dur, current.clipping)
+                    return
+                }
+            }
+            view.setChapterList(null,0L,Range.empty)
+        }
+
+    }
+    val chapterInfo = ChapterInfo()
 
     // region Private Properties
 
@@ -166,17 +196,22 @@ class MicVideoPlayer @JvmOverloads constructor(
         appViewModel.currentVideo.observe(lifecycleOwner()!!) { item->
             if(item!=null) {
                 if(item.id!=appViewModel.currentId) {
-                    appViewModel.chapterList.value = null
+                    chapterInfo.reset()
                     appViewModel.currentId = item.id
                     setSource(Uri.parse(item.url), item.clipping, true)
                     appViewModel.viewModelScope.launch {
-                        val chapterList = ChapterList.get(item.id) ?: return@launch
-                        if(chapterList.ownerId == appViewModel.currentId) {
-                            appViewModel.chapterList.value = chapterList
+                        val cl = ChapterList.get(item.id) ?: return@launch
+                        if(cl.ownerId == appViewModel.currentId) {
+                            chapterInfo.chapterList.value = cl
                         }
                     }
                 }
             }
+        }
+
+        chapterInfo.ready.observe(lifecycleOwner()!!) {
+            val entry = appViewModel.currentVideo.value ?: return@observe
+            chapterInfo.update(findViewById<ChapterView>(R.id.chapter_view), entry)
         }
 
         mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev)?.apply {
@@ -186,6 +221,20 @@ class MicVideoPlayer @JvmOverloads constructor(
         mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next)?.apply {
             visibility = View.VISIBLE
             setOnClickListener { appViewModel.nextVideo() }
+        }
+        mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_prev_chapter)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                val c = chapterInfo.chapterListIfReady?.prev(seekPosition)?.position ?: return@setOnClickListener
+                seekTo(c)
+            }
+        }
+        mBindings.playerView.findViewById<ImageButton>(R.id.mic_ctr_exo_next_chapter)?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                val c = chapterInfo.chapterListIfReady?.next(seekPosition)?.position ?: return@setOnClickListener
+                seekTo(c)
+            }
         }
 
         val sa = context.theme.obtainStyledAttributes(attrs,R.styleable.MicVideoPlayer,defStyleAttr,0)
@@ -394,7 +443,9 @@ class MicVideoPlayer @JvmOverloads constructor(
         private fun updateState() {
             if (mInitial && isReady) {
                 mInitial = false
-                videoPreparedListener.invoke(this@MicVideoPlayer, naturalDuration)
+                val duration = naturalDuration
+                videoPreparedListener.invoke(this@MicVideoPlayer, duration)
+                chapterInfo.duration.value = duration
             }
             if (isLoading&&!isPlaying) {
                 progressRingManager.show()

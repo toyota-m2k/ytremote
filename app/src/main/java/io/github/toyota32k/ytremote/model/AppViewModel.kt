@@ -30,7 +30,6 @@ class AppViewModel : ViewModel() {
     var lastUpdate : Long = 0L
     val videoSources = ObservableList<VideoItem>()
     val currentVideo = MutableLiveData<VideoItem>()
-    val chapterList = MutableLiveData<ChapterList?>()
     val playing = MutableLiveData<Boolean>()
     var currentId:String? = null
 

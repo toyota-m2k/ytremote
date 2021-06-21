@@ -52,6 +52,9 @@ data class Settings(
     fun urlCurrentItem():String {
         return baseUrl + "current"
     }
+    fun urlChapters(id:String):String {
+        return baseUrl + "chapter?id=$id"
+    }
 
 
 
