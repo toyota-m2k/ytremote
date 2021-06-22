@@ -137,7 +137,7 @@ class SortedList<T,K>(
             return -1
         }
 
-        if (comparator(keyOf(mList[e]), key)<0) {
+        if (comparator(keyOf(mList[e]), key)>0) {
             // 最後の要素より後ろ
             result?.apply {
                 prev = e
@@ -159,7 +159,7 @@ class SortedList<T,K>(
                     }
                 }
                 return m     // 一致する要素が見つかった
-            } else if (cmp<0) {
+            } else if (cmp>0) {
                 s = m + 1
             } else {
                 e = m - 1
