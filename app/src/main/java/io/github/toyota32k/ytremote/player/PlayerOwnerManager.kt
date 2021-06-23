@@ -23,15 +23,6 @@ class PlayerOwnerManager(val appViewModel: AppViewModel) {
     private var primaryOwner : WeakReference<IPlayerOwner>? = null
     private var secondaryOwner : WeakReference<IPlayerOwner>? = null
 
-    fun attachOwner(owner: IPlayerOwner, priority: PlayerOwnerPriority) {
-        secondaryOwner?.get()?.ownerResigned()
-        primaryOwner?.get()?.ownerResigned()
-        when(priority) {
-            PlayerOwnerPriority.PRIMARY ->primaryOwner = WeakReference(owner)
-            PlayerOwnerPriority.SECONDARY ->secondaryOwner = WeakReference(owner)
-        }
-        owner.ownerAssigned(player!!)
-    }
     fun detachOwner(owner: IPlayerOwner) {
         owner.ownerResigned()
         if(owner==secondaryOwner?.get()) {
@@ -41,10 +32,15 @@ class PlayerOwnerManager(val appViewModel: AppViewModel) {
     }
 
     fun attachPrimaryOwner(owner: IPlayerOwner) {
-        attachOwner(owner, PlayerOwnerPriority.PRIMARY)
+        primaryOwner = WeakReference(owner)
+        if(secondaryOwner?.get()==null) {
+            owner.ownerAssigned(player!!)
+        }
     }
     fun attachSecondaryOwner(owner: IPlayerOwner) {
-        attachOwner(owner, PlayerOwnerPriority.SECONDARY)
+        secondaryOwner = WeakReference(owner)
+        primaryOwner?.get()?.ownerResigned()
+        owner.ownerAssigned(player!!)
     }
 
     fun preparePlayer(context: Context) {

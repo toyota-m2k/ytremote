@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class PlayerStateModel(val appViewModel: AppViewModel) {
     var currentItem:MutableLiveData<VideoItem?> = MutableLiveData(null)
-    val currentId = currentItem.mapEx { it?.id }
+    val currentId get() = currentItem.value?.id
 
     val isPlaying = MutableLiveData<Boolean>(false)
     val errorMessage = MutableLiveData<String?>(null)
@@ -53,10 +53,10 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
             chapterList.value = null
         }
         fun load() {
-            val id = currentId.value ?: return
+            val id = currentId ?: return
             appViewModel.viewModelScope.launch {
                 val cl = ChapterList.get(id) ?: return@launch
-                if(cl.ownerId == currentId.value) {
+                if(cl.ownerId == currentId) {
                     chapterList.value = cl
                 }
             }
@@ -67,7 +67,7 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
             val cl = chapterList.value
             val dur = duration.value
             if(dur!=null && dur>0L && cl!=null) {
-                if(cl.ownerId == currentId.value) {
+                if(cl.ownerId == currentId) {
                     return ChapterInfo(cl, dur, current.clipping)
                 }
             }
@@ -89,32 +89,38 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
         private set(v) { mPlayerState.value = v }
 
     val playerState: LiveData<PlayerState> = mPlayerState
-    fun setPlayerState(state: PlayerState) {
+    fun setPlayerState(state: PlayerState):Boolean {
         when(state) {
             PlayerState.Loading -> {
                 if(fPlayerState == PlayerState.None) {
                     fPlayerState = state
+                    return true
                 }
             }
             PlayerState.Playing -> {
                 if(fPlayerState== PlayerState.Loading ||fPlayerState== PlayerState.Paused) {
                     fPlayerState = state
+                    return true
                 }
             }
             PlayerState.Paused -> {
                 if(fPlayerState== PlayerState.Loading ||fPlayerState== PlayerState.Playing) {
                     fPlayerState = state
+                    return true
                 }
             }
             PlayerState.Error -> {
                 if(fPlayerState==PlayerState.Loading) {
                     fPlayerState = state
+                    return true
                 }
             }
             else-> {
                 fPlayerState = state
+                return true
             }
         }
+        return false
     }
     val zeroSize = Size(0,0)
 
@@ -128,12 +134,13 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
     }
 
     fun onLoading() {
-        ended = false
-        errorMessage.value = null
-        chapterSource.load()
-        duration.value = 0L
-        videoSize.value = zeroSize
-        setPlayerState(PlayerState.Loading)
+        if(setPlayerState(PlayerState.Loading)) {
+            ended = false
+            errorMessage.value = null
+            chapterSource.load()
+            duration.value = 0L
+            videoSize.value = zeroSize
+        }
     }
     fun onLoaded(duration:Long, play:Boolean) {
         this.duration.value = duration

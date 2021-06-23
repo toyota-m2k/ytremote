@@ -27,7 +27,9 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Binder
 import io.github.toyota32k.bindit.ClickBinding
 import io.github.toyota32k.utils.UtLogger
+import io.github.toyota32k.ytremote.MainActivity
 import io.github.toyota32k.ytremote.R
+import io.github.toyota32k.ytremote.SettingActivity
 import io.github.toyota32k.ytremote.model.AppViewModel
 import io.github.toyota32k.ytremote.model.IPlayerOwner
 import io.github.toyota32k.ytremote.utils.Funcies1
@@ -139,7 +141,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
                         pauseAction.setShouldShowIcon(playing)
                     }
                 },
-                appViewModel.playerStateModel.commandCloseFullscreen.bind(owner) { finishAndRemoveTask() },
+                appViewModel.playerStateModel.commandCloseFullscreen.bind(owner) { startActivity(Intent(owner, MainActivity::class.java)) },
                 appViewModel.playerStateModel.commandPinP.bind(owner) {
                     requestPinP = true
                     enterPinP()
@@ -229,7 +231,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
     private fun enterPinP() {
         if (supportPinP) {
             val param = PictureInPictureParams.Builder()
-                    .setAspectRatio(Rational(239,100))
+                    .setAspectRatio(Rational(16,9))
                     .setActions(listOf(playAction, pauseAction, seekTopAction))
                     .build()
             enterPictureInPictureMode(param)

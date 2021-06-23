@@ -14,6 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/mic_progress_holder"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -140,7 +141,7 @@
     <FrameLayout
         android:id="@+id/mic_progress_holder"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="35dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/exo_position"
         app:layout_constraintRight_toLeftOf="@id/exo_duration">
@@ -157,7 +158,7 @@
         <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/exo_progress"
             android:layout_width="match_parent"
-            android:layout_height="26dp"
+            android:layout_height="24dp"
             android:layout_gravity="bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/exo_position"
