@@ -3,24 +3,18 @@ package io.github.toyota32k.ytremote.model
 import androidx.lifecycle.*
 import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Command
-import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.utils.combineLatest
-import io.github.toyota32k.ytremote.data.VideoItem
 
 class MainViewModel : ViewModel(), IPlayerOwner {
+    val appViewModel = AppViewModel.instance
     val showSidePanel = MutableLiveData(true)
-    val appViewModel = AppViewModel.instance.apply { addRef() }
-    val videoSources: ObservableList<VideoItem>
-        get() = appViewModel.videoSources
     val player = MutableLiveData<SimpleExoPlayer>()     // ExoPlayer はActivityのライフサイクルに影響されないのでビューモデルに覚えておく。
-    val hasPlayer = player.map { it != null }
-    val playOnMainPlayer = combineLatest(hasPlayer, appViewModel.playing) {hasPlayer, playing->
-        hasPlayer == true && playing == true
-    }
+    val isPlayingOnMainView = combineLatest(player, appViewModel.playerStateModel.isPlaying) { player, isPlaying-> player!=null && isPlaying==true }.distinctUntilChanged()
+//    val hasPlayer = player.mapEx { it != null }
 
     init {
-        appViewModel.attachPrimaryOwner(this)
+        appViewModel.attachPrimaryPlayerOwner(this)
     }
 
     override fun ownerAssigned(player: SimpleExoPlayer) {
@@ -31,13 +25,13 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         this.player.value = null
     }
 
-    fun refresh() {
-        appViewModel.refreshVideoList()
-    }
+//    fun refresh() {
+//        appViewModel.refreshVideoList()
+//    }
 
     override fun onCleared() {
         super.onCleared()
-        appViewModel.release()
+        appViewModel.detachPlayerOwner(this)
     }
 
     // region Commands
@@ -48,8 +42,6 @@ class MainViewModel : ViewModel(), IPlayerOwner {
     val commandReloadList = Command()
     val commandSyncToHost = Command()
     val commandSyncFromHost = Command()
-    val commandFullscreen = Command()
-    val commandPinP = Command()
     // endregion
 
     companion object {

@@ -20,7 +20,7 @@ object CurrentItemSynchronizer {
      */
     fun syncTo() {
         val vm = AppViewModel.instance
-        val current = vm.currentVideo.value ?: return
+        val current = vm.currentItem.value ?: return
         val url = vm.settings.urlCurrentItem()
         val json = JSONObject()
             .put("id", current.id)

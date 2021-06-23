@@ -20,24 +20,26 @@ enum class FitMode {
 /**
  * ビデオや画像のサイズ(original)を、指定されたmode:FitModeに従って、配置先のサイズ(layout)に合わせるように変換して resultに返す。
  *
- * @param original  元のサイズ（ビデオ/画像のサイズ）
- * @param layout    レイアウト先の指定サイズ
+ * @param srcWidth
+ * @param srcHeight  元のサイズ（ビデオ/画像のサイズ）
+ * @param dstWidth
+ * @param dstHeight レイアウト先の指定サイズ
  * @param mode      計算方法の指定
  * @return          計算結果
  */
-fun fitSizeTo(original:SizeF, layout:SizeF, mode:FitMode): SizeF {
+fun fitSizeTo(srcWidth:Float, srcHeight:Float, dstWidth:Float, dstHeight:Float, mode:FitMode): SizeF {
     return try {
         when (mode) {
-            FitMode.Fit -> layout
-            FitMode.Width -> SizeF(layout.width, original.height * layout.width / original.width)
-            FitMode.Height -> SizeF(original.width * layout.height / original.height, layout.height)
+            FitMode.Fit -> SizeF(dstWidth, dstHeight)
+            FitMode.Width -> SizeF(dstWidth, srcHeight * dstWidth / srcWidth)
+            FitMode.Height -> SizeF(srcWidth * dstHeight / srcHeight, dstHeight)
             FitMode.Inside -> {
-                val rw = layout.width / original.width
-                val rh = layout.height / original.height
+                val rw = dstWidth / srcWidth
+                val rh = dstHeight / srcHeight
                 if (rw < rh) {
-                    SizeF(layout.width, original.height * rw)
+                    SizeF(dstWidth, srcHeight * rw)
                 } else {
-                    SizeF(original.width * rh, layout.height)
+                    SizeF(srcWidth * rh, dstHeight)
                 }
             }
         }
@@ -61,34 +63,25 @@ fun Size.toSizeF() : SizeF {
     return SizeF(width.toFloat(),height.toFloat())
 }
 
-interface ILayoutHint {
-    val fitMode: FitMode
-    val layoutWidth: Float
-    val layoutHeight: Float
-}
+class Fitter {
+    private var fitMode: FitMode = FitMode.Inside
+    private var layoutWidth: Int = 1000
+    private var layoutHeight: Int = 1000
 
-open class Fitter(override var fitMode: FitMode = FitMode.Inside, private var layoutSize: SizeF = SizeF(1000f, 1000f)) : ILayoutHint {
-    override val layoutWidth: Float
-        get() = layoutSize.width
-    override val layoutHeight: Float
-        get() = layoutSize.height
-
-
-    fun setHint(fitMode:FitMode, width:Float, height:Float) {
+    fun setHint(fitMode:FitMode, width:Int, height:Int):Boolean {
+        if(this.fitMode==fitMode && width == layoutWidth && height==layoutHeight ) return false
         this.fitMode = fitMode
-        layoutSize = SizeF(width,height)
-    }
-    fun setHint(fitMode:FitMode, layoutSize:SizeF) {
-        this.fitMode = fitMode
-        this.layoutSize = layoutSize
+        this.layoutWidth = width
+        this.layoutHeight = height
+        return true
     }
 
-    fun fit(original:SizeF):SizeF {
-        return fitSizeTo(original, layoutSize, fitMode)
+    fun fit(original:Size):Size {
+        return fit(original.width, original.height)
     }
 
-    fun fit(w:Float, h:Float):SizeF {
-        return fit(SizeF(w,h))
+    fun fit(w:Int, h:Int):Size {
+        return fitSizeTo(w.toFloat(), h.toFloat(), layoutWidth.toFloat(), layoutHeight.toFloat(), fitMode).toSize()
     }
 
     companion object {

@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import io.github.toyota32k.ytremote.data.ChapterList
 import io.github.toyota32k.ytremote.model.AppViewModel
+import io.github.toyota32k.ytremote.player.PlayerStateModel
 import io.github.toyota32k.ytremote.player.Range
 
 
@@ -19,11 +20,21 @@ class ChapterView @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     private val mTickWidth = 1f
 
-    fun setChapterList(list:ChapterList?, dur:Long, trimming:Range) {
-        duration = dur
-        chapterList = list
-        disabledRanges = list?.disabledRanges(trimming)?.toList()
-        invalidate()
+    fun setChapterList(ci:PlayerStateModel.ChapterInfo?) { // list:ChapterList?, dur:Long, trimming:Range) {
+        if(ci==null) {
+            val needsRedraw = duration!=0L
+            duration = 0
+            chapterList = null
+            disabledRanges = null
+            if(needsRedraw) {
+                invalidate()
+            }
+        } else {
+            duration = ci.duration
+            chapterList = ci.list
+            disabledRanges = ci.list.disabledRanges(ci.trimming).toList()
+            invalidate()
+        }
     }
 
     init {

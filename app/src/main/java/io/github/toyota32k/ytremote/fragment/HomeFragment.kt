@@ -11,6 +11,7 @@ import io.github.toyota32k.bindit.Binder
 import io.github.toyota32k.bindit.BoolConvert
 import io.github.toyota32k.bindit.VisibilityBinding
 import io.github.toyota32k.utils.UtLog
+import io.github.toyota32k.utils.disposableObserve
 import io.github.toyota32k.ytremote.R
 import io.github.toyota32k.ytremote.model.MainViewModel
 import io.github.toyota32k.ytremote.player.FullscreenVideoActivity
@@ -24,29 +25,25 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
 
     inner class HomeViewBinder(owner:LifecycleOwner, view:View):Binder() {
-        private val playerBinder = Binder()
         private val playerView: MicVideoPlayer = view.findViewById(R.id.player_view)
+        private val uavView:View = view.findViewById(R.id.unavailable_icon_view)
         init {
             register(
-                playerBinder,
-                VisibilityBinding.create(owner, view.findViewById(R.id.unavailable_icon_view), viewModel.hasPlayer, BoolConvert.Inverse),
+                viewModel.player.disposableObserve(owner) {
+                    if(it!=null) {
+                        playerView.bindPlayer(it, true, true, false)
+                        uavView.visibility = View.GONE
+                    } else {
+                        playerView.unbindPlayer()
+                        uavView.visibility = View.VISIBLE
+                    }
+                },
             )
         }
-        fun connectPlayer(player: SimpleExoPlayer?) {
-            playerBinder.reset()
-            playerView.setPlayer(player)
-            if(player!=null) {
-                playerView.findViewById<View>(R.id.mic_ctr_full_button)?.also {
-                    playerBinder.register(viewModel.commandFullscreen.connectViewEx(it))
-                    it.visibility = View.VISIBLE
-                }
-                if (FullscreenVideoActivity.supportPinP) {
-                    playerView.findViewById<View>(R.id.mic_ctr_pinp_button)?.also {
-                        playerBinder.register(viewModel.commandPinP.connectViewEx(it))
-                        it.visibility = View.VISIBLE
-                    }
-                }
-            }
+
+        override fun dispose() {
+            super.dispose()
+            playerView.unbindPlayer()
         }
     }
 
@@ -61,15 +58,12 @@ class HomeFragment : Fragment() {
         viewModel = MainViewModel.instanceFor(requireActivity())
         return inflater.inflate(R.layout.fragment_home, container, false).also { view->
             binder = HomeViewBinder(requireActivity(), view)
-            viewModel.player.observe(requireActivity()) {
-                binder.connectPlayer(it)
-            }
         }
     }
 
     override fun onDestroyView() {
         logger.debug()
-        binder.connectPlayer(null)
+        binder.dispose()
         super.onDestroyView()
     }
 

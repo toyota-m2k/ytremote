@@ -4,12 +4,18 @@ import android.app.Application
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import io.github.toyota32k.ytremote.model.AppViewModel
+import io.github.toyota32k.ytremote.model.RefCount
 
 class BooApplication : Application(), ViewModelStoreOwner {
-    private val viewModelStore = ViewModelStore()
+    private var viewModelStore : ViewModelStore? = null
 
     override fun getViewModelStore(): ViewModelStore {
-        return viewModelStore
+        var vms = viewModelStore
+        if(null==vms) {
+            vms = ViewModelStore()
+            viewModelStore = vms
+        }
+        return vms
     }
 
     init {
@@ -18,18 +24,20 @@ class BooApplication : Application(), ViewModelStoreOwner {
 
     override fun onCreate() {
         super.onCreate()
-        AppViewModel.instance.refCount.observeForever { refCount->
-            if(null!=refCount) {
-                if(refCount==0) {
-                    viewModelStore.clear()
-                }
-            }
+        AppViewModel.instance.refCount.observeRelease {
+            viewModelStore?.clear()
+            viewModelStore = null
         }
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        viewModelStore?.clear()
+        viewModelStore = null
     }
 
     companion object {
         private lateinit var instance_:BooApplication
-        val instance
-            get() = instance_
+        val instance get() = instance_
     }
 }

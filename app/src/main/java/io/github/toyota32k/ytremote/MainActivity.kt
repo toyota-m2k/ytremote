@@ -18,6 +18,7 @@ import io.github.toyota32k.bindit.ClickBinding
 import io.github.toyota32k.bindit.RecycleViewBinding
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLogger
+import io.github.toyota32k.utils.disposableObserve
 import io.github.toyota32k.ytremote.data.CurrentItemSynchronizer
 import io.github.toyota32k.ytremote.data.NetClient
 import io.github.toyota32k.ytremote.fragment.HomeFragment
@@ -29,6 +30,7 @@ import io.github.toyota32k.ytremote.utils.ViewSizeAnimChip
 import io.github.toyota32k.ytremote.utils.ViewVisibilityAnimationChip
 import kotlinx.coroutines.*
 import okhttp3.Request
+import java.lang.Math.min
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerAnim : AnimSet
     private lateinit var toolbarAnim : AnimSequence
     private lateinit var binder:MainViewBinder
+    private val appViewModel get() = viewModel.appViewModel
 
     inner class MainViewBinder : Binder() {
         val micSpacer:View = findViewById(R.id.mic_spacer)
@@ -57,30 +60,65 @@ class MainActivity : AppCompatActivity() {
         val selectedColor = getColor(R.color.purple_700)
 
         init {
-            videoList.layoutManager = LinearLayoutManager(this@MainActivity)
+            val owner = this@MainActivity
+            videoList.layoutManager = LinearLayoutManager(owner)
             videoList.setHasFixedSize(true)
 
-            val owner = this@MainActivity
+            val toolbarAnimationMediator = ToolbarAnimationMediator()
             register(
                 viewModel.commandShowDrawer.connectAndBind(owner, showDrawerButton) { viewModel.showSidePanel.value = true },
                 viewModel.commandShowDrawer.connectViewEx(openToolbarButton),
                 viewModel.commandHideDrawer.connectAndBind(owner, drawerGuard) { viewModel.showSidePanel.value = false },
-                viewModel.commandSetting.connectAndBind(owner, settingButton) { startActivity(Intent(this@MainActivity, SettingActivity::class.java)) },
+                viewModel.commandSetting.connectAndBind(owner, settingButton) { startActivity(Intent(owner, SettingActivity::class.java)) },
                 viewModel.commandPushUrl.connectAndBind(owner, fab) { acceptUrl( it?:return@connectAndBind ) },
-                viewModel.commandReloadList.connectAndBind(owner, reloadListButton) { viewModel.refresh() },
+                viewModel.commandReloadList.connectAndBind(owner, reloadListButton) { appViewModel.refreshVideoList() },
                 viewModel.commandSyncFromHost.connectAndBind(owner, syncFromHostButton) { CurrentItemSynchronizer.syncFrom() },
                 viewModel.commandSyncToHost.connectAndBind(owner, syncToHostButton) { CurrentItemSynchronizer.syncTo() },
-                viewModel.commandFullscreen.bind(owner) { showFullscreenViewer(false) },
-                viewModel.commandPinP.bind(owner) { showFullscreenViewer(true) },
-                RecycleViewBinding.create(owner, videoList, viewModel.videoSources, R.layout.list_item) { binder, view, videoItem ->
-//                    val vm = VideoItemViewModel(this@MainActivity, videoItem, viewModel)
+                appViewModel.playerStateModel.commandFullscreen.bind(owner) { showFullscreenViewer(false) },
+                appViewModel.playerStateModel.commandPinP.bind(owner) { showFullscreenViewer(true) },
+                RecycleViewBinding.create(owner, videoList, appViewModel.videoSources, R.layout.list_item) { binder, view, videoItem ->
+//                    val vm = VideoItemViewModel(owner, videoItem, viewModel)
                     val textView = view.findViewById<TextView>(R.id.video_item_text)
                     textView.text = videoItem.name
                     binder.register(
-                        ClickBinding(owner, textView) { viewModel.appViewModel.currentVideo.value = videoItem },
-                        BackgroundBinding.create(this@MainActivity, textView, viewModel.appViewModel.currentVideo.map { ColorDrawable(if(it?.id == videoItem.id) selectedColor else normalColor) })
+                        ClickBinding(owner, textView) { viewModel.appViewModel.currentItem.value = videoItem },
+                        BackgroundBinding.create(owner, textView, viewModel.appViewModel.currentItem.map { ColorDrawable(if(it?.id == videoItem.id) selectedColor else normalColor) })
                     )
-                }
+                },
+                appViewModel.videoSources.addListener(owner ) {
+                    // MainActivity上で再生中に、プレイリストが更新されたら、サイドバーを表示し、挿入位置までスクロールする
+                    if( viewModel.player.value!=null && (it.kind == ObservableList.MutationKind.REFRESH || it.kind==ObservableList.MutationKind.INSERT)) {
+                        viewModel.showSidePanel.value = true
+                        if(it.kind==ObservableList.MutationKind.INSERT && appViewModel.videoSources.count()>0) {
+                            binder.videoList.scrollToPosition(min((it as ObservableList.InsertEventData).position, appViewModel.videoSources.count()-1))
+                        }
+                    }
+                },
+                viewModel.appViewModel.currentItem.disposableObserve(owner) {
+                    // 再生ターゲットが変わったときに、それをリスト内に表示するようスクロール
+                    val pos = appViewModel.videoSources.indexOf(it)
+                    if(pos>=0) {
+                        binder.videoList.scrollToPosition(pos)
+                    }
+                },
+                viewModel.showSidePanel.distinctUntilChanged().disposableObserve(owner){
+                    // サイドバーの表示・非表示切り替え動作
+                    UtLogger.debug("Drawer:(${it==true})")
+                    drawerAnim.animate(it==true)
+                },
+                viewModel.isPlayingOnMainView.disposableObserve(owner) {
+                    // 再生中はツールバーを隠す
+                    if (it == true) {
+                        UtLogger.debug("PLY: playing --> hide toolbar")
+                        toolbarAnimationMediator.request(false, 2000)
+                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    } else {
+                        UtLogger.debug("PLY: !playing --> show toolbar")
+                        toolbarAnimationMediator.request(true, 300)
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    }
+                },
+
             )
         }
 
@@ -97,6 +135,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // FullScreen/PinP表示に切り替える
         private fun showFullscreenViewer(pinp:Boolean) {
             val intent = Intent(this@MainActivity, FullscreenVideoActivity::class.java)
             intent.putExtra(FullscreenVideoActivity.KEY_PINP, pinp)
@@ -132,42 +171,6 @@ class MainActivity : AppCompatActivity() {
                 add(ViewVisibilityAnimationChip(binder.openToolbarButton, startVisible = false, endVisible = true))
                 add(ViewVisibilityAnimationChip(binder.fab, startVisible = true, endVisible = false))
             })
-        }
-
-        viewModel.videoSources.addListener(this) {
-            if( viewModel.playOnMainPlayer.value!=true && (it.kind == ObservableList.MutationKind.REFRESH || it.kind==ObservableList.MutationKind.INSERT)) {
-                viewModel.commandShowDrawer.onClick(null)
-            }
-            if(it.kind==ObservableList.MutationKind.INSERT && viewModel.videoSources.count()>0) {
-                binder.videoList.scrollToPosition(viewModel.videoSources.count()-1)
-            }
-        }
-
-        viewModel.appViewModel.currentVideo.observe(this) {
-            val pos = viewModel.videoSources.indexOf(it)
-            if(pos>=0) {
-                binder.videoList.scrollToPosition(pos)
-            }
-        }
-
-        viewModel.showSidePanel.distinctUntilChanged().observe(this){
-            UtLogger.debug("Drawer:(${it==true})")
-            drawerAnim.animate(it==true)
-        }
-
-        val med = ToolbarAnimationMediator()
-        viewModel.playOnMainPlayer.observe(this) {
-            if(it==true) {
-                UtLogger.debug("PLY: playing --> hide toolbar")
-                //toolbarAnim.animate(false)
-                med.request(false, 2000)
-                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            } else {
-//                handlers.showDrawer(true)
-                UtLogger.debug("PLY: !playing --> show toolbar")
-//                toolbarAnim.animate(true)
-                med.request(true, 300)
-                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)            }
         }
 
         if(intent?.action == Intent.ACTION_SEND) {

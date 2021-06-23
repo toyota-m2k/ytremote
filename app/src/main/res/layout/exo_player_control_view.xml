@@ -146,7 +146,7 @@
         app:layout_constraintRight_toLeftOf="@id/exo_duration">
 
         <com.michael.ytremote.view.ChapterView
-            android:id="@+id/chapter_view"
+            android:id="@+id/mic_chapter_view"
             android:layout_width="match_parent"
             android:layout_height="12dp"
             android:layout_margin="8dp"
