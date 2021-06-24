@@ -23,4 +23,5 @@
     <style name="Theme.BooRemote.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.BooRemote.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

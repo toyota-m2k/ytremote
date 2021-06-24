@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.SimpleExoPlayer
-import io.github.toyota32k.bindit.Command
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.ytremote.BooApplication
@@ -30,7 +29,7 @@ class AppViewModel : ViewModel() {
     var refCount = RefCount()
 
     // 通信中フラグ
-    val loading = MutableLiveData<Boolean>()
+    private val loading = MutableLiveData<Boolean>()
     private var lastUpdate : Long = 0L
 
     val videoSources = ObservableList<VideoItem>()

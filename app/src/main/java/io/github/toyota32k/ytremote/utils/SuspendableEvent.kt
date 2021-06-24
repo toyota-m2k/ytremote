@@ -44,6 +44,7 @@ class SuspendableEvent(private var signal:Boolean, private val autoReset:Boolean
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     suspend fun waitOne() {
         mutex.withLock {
             if(signal) {

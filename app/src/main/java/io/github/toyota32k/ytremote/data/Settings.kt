@@ -1,7 +1,7 @@
 package io.github.toyota32k.ytremote.data
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.core.content.edit
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.ytremote.model.AppViewModel
@@ -17,7 +17,7 @@ data class Settings(
     val isValid
         get() = !activeHost.isNullOrBlank()
 
-    val hostPort:String?
+    private val hostPort:String?
         get() = activeHost?.let { host ->
             return if(host.contains(":")) {
                 host

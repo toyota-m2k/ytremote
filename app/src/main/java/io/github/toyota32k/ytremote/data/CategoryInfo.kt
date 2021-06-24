@@ -4,7 +4,6 @@ import android.graphics.Color
 import androidx.lifecycle.MutableLiveData
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.ytremote.model.AppViewModel
-import io.github.toyota32k.utils.combineLatest
 import io.github.toyota32k.ytremote.utils.toIterable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,9 +24,9 @@ data class CategoryInfo(val label:String, val color:Color,val sort:Int) {
 //    }
 
 
-    companion object {
-        val all = CategoryInfo("All", Color.valueOf(Color.parseColor("Blue")), 0/*, "M17.9,17.39C17.64,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.9,17.39M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.78 4.21,10.21L9,15V16A2,2 0 0,0 11,18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"*/)
-    }
+//    companion object {
+//        val all = CategoryInfo("All", Color.valueOf(Color.parseColor("Blue")), 0/*, "M17.9,17.39C17.64,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.9,17.39M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.78 4.21,10.21L9,15V16A2,2 0 0,0 11,18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"*/)
+//    }
 }
 
 class CategoryList() {
@@ -37,13 +36,13 @@ class CategoryList() {
     private val busy = AtomicBoolean(false)
     val currentLabel = MutableLiveData<String>("All")
 
-    val categoryInfo = combineLatest(currentLabel, list) {label, list->
-        if(label==null || list==null) {
-            CategoryInfo.all
-        } else {
-            list.find { it.label==label } ?: CategoryInfo.all
-        }
-    }
+//    val categoryInfo = combineLatest(currentLabel, list) {label, list->
+//        if(label==null || list==null) {
+//            CategoryInfo.all
+//        } else {
+//            list.find { it.label==label } ?: CategoryInfo.all
+//        }
+//    }
 
     var category:String?
         get() = currentLabel.value ?: "All"

@@ -19,7 +19,7 @@ class ChapterList(val ownerId:String) : SortedList<Chapter, Long>(10, false,
         val d = y-x
         if(d<0) -1 else if(d>0) 1 else 0 }) {
 
-    private val position = SortedList.Position()
+    private val position = Position()
 
     fun prev(current:Long) : Chapter? {
         find(current, position)
@@ -60,11 +60,11 @@ class ChapterList(val ownerId:String) : SortedList<Chapter, Long>(10, false,
         for (r in disabledRangesRaw()) {
             if (r.end < trimming.start) {
                 // ignore
-                continue;
+                continue
             } else if (trimStart > 0) {
                 if (r.start < trimStart) {
                     yield(Range(0, r.end))
-                    continue;
+                    continue
                 } else {
                     yield(Range(0, trimStart))
                 }
@@ -75,7 +75,7 @@ class ChapterList(val ownerId:String) : SortedList<Chapter, Long>(10, false,
                 if (trimEnd < r.start) {
                     break
                 } else if (trimEnd < r.end) {
-                    trimEnd = 0;
+                    trimEnd = 0
                     yield(Range(r.start, 0))
                     break
                 }

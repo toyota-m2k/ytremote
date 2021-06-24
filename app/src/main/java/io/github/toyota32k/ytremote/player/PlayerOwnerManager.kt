@@ -15,11 +15,6 @@ class PlayerOwnerManager(val appViewModel: AppViewModel) {
     private val playerBridge = PlayerModelBridge(appViewModel, playerState)
     val player:SimpleExoPlayer? get() = playerBridge.player
 
-    enum class PlayerOwnerPriority {
-        PRIMARY,            // MainViewModel：アプリ実行中は常に存在し、FullscreenActivityが閉じたとき、自動的にスイッチする
-        SECONDARY,          // FullscreenActivity: フルスクリーン/PinP中のみ所有権を奪い、これが閉じると所有権をPrimaryに戻す
-    }
-
     private var primaryOwner : WeakReference<IPlayerOwner>? = null
     private var secondaryOwner : WeakReference<IPlayerOwner>? = null
 

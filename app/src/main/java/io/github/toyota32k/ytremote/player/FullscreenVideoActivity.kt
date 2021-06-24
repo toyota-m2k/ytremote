@@ -20,19 +20,15 @@ import android.util.Rational
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Binder
-import io.github.toyota32k.bindit.ClickBinding
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.ytremote.MainActivity
 import io.github.toyota32k.ytremote.R
-import io.github.toyota32k.ytremote.SettingActivity
 import io.github.toyota32k.ytremote.model.AppViewModel
 import io.github.toyota32k.ytremote.model.IPlayerOwner
-import io.github.toyota32k.ytremote.utils.Funcies1
 import java.lang.ref.WeakReference
 
 class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
@@ -125,8 +121,8 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
 
 
     inner class FSBinder: Binder() {
-        var playerView = findViewById<MicVideoPlayer>(R.id.fullscreen_player)
-        var rootContainer = findViewById<ConstraintLayout>(R.id.fullscreen_root)
+        var playerView: MicVideoPlayer = findViewById(R.id.fullscreen_player)
+        var rootContainer: ConstraintLayout = findViewById(R.id.fullscreen_root)
 
         init {
             val owner = this@FullscreenVideoActivity
@@ -428,6 +424,6 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
     }
 
     override fun ownerAssigned(player: SimpleExoPlayer) {
-        binder.playerView.bindPlayer(player, false, true, true)
+        binder.playerView.bindPlayer(player,enableFullscreen = false,enablePinP = true,enableClose = true)
     }
 }

@@ -30,7 +30,6 @@ import io.github.toyota32k.ytremote.utils.ViewSizeAnimChip
 import io.github.toyota32k.ytremote.utils.ViewVisibilityAnimationChip
 import kotlinx.coroutines.*
 import okhttp3.Request
-import java.lang.Math.min
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -48,16 +47,17 @@ class MainActivity : AppCompatActivity() {
         val micSpacer:View = findViewById(R.id.mic_spacer)
         val openToolbarButton:View = findViewById(R.id.open_toolbar_button)
         val fab:View  = findViewById(R.id.fab)
-        val videoList = findViewById<RecyclerView>(R.id.video_list)
-        val showDrawerButton:View = findViewById(R.id.show_drawer_button)
         val drawerGuard:View = findViewById(R.id.drawer_guard)
-        val settingButton:View = findViewById(R.id.setting_button)
-        val reloadListButton:View = findViewById(R.id.reload_list_button)
-        val syncToHostButton:View = findViewById(R.id.sync_to_host)
-        val syncFromHostButton:View = findViewById(R.id.sync_from_host)
 
-        val normalColor = getColor(R.color.list_item_bg)
-        val selectedColor = getColor(R.color.purple_700)
+        private val videoList: RecyclerView = findViewById(R.id.video_list)
+        private val showDrawerButton:View = findViewById(R.id.show_drawer_button)
+        private val settingButton:View = findViewById(R.id.setting_button)
+        private val reloadListButton:View = findViewById(R.id.reload_list_button)
+        private val syncToHostButton:View = findViewById(R.id.sync_to_host)
+        private val syncFromHostButton:View = findViewById(R.id.sync_from_host)
+
+        private val normalColor = getColor(R.color.list_item_bg)
+        private val selectedColor = getColor(R.color.purple_700)
 
         init {
             val owner = this@MainActivity
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
                     if( viewModel.player.value!=null && (it.kind == ObservableList.MutationKind.REFRESH || it.kind==ObservableList.MutationKind.INSERT)) {
                         viewModel.showSidePanel.value = true
                         if(it.kind==ObservableList.MutationKind.INSERT && appViewModel.videoSources.count()>0) {
-                            binder.videoList.scrollToPosition(min((it as ObservableList.InsertEventData).position, appViewModel.videoSources.count()-1))
+                            binder.videoList.scrollToPosition(kotlin.math.min((it as ObservableList.InsertEventData).position, appViewModel.videoSources.count()-1))
                         }
                     }
                 },
@@ -149,8 +149,7 @@ class MainActivity : AppCompatActivity() {
         logger.debug()
         super.onCreate(savedInstanceState)
         try {
-            val view = layoutInflater.inflate(R.layout.activity_main, null)
-            setContentView(view)
+            setContentView(View.inflate(this, R.layout.activity_main, null))
         } catch (e:Throwable) {
             UtLogger.stackTrace(e)
         }
@@ -206,11 +205,8 @@ class MainActivity : AppCompatActivity() {
         if(rawUrl==null||(!rawUrl.startsWith("https://")&&!rawUrl.startsWith("http://"))) {
             return
         }
-        val yturl = rawUrl.split("\r","\n"," ","\t").filter {!it.isBlank()}.firstOrNull()
-        if(yturl==null) {
-            return
-        }
-        val url = viewModel.appViewModel.settings.urlToRegister(yturl)
+        val urlParam = rawUrl.split("\r", "\n", " ", "\t").firstOrNull { it.isNotBlank() } ?: return
+        val url = viewModel.appViewModel.settings.urlToRegister(urlParam)
         CoroutineScope(Dispatchers.Default).launch {
             val req = Request.Builder()
                     .url(url)

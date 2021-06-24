@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:layoutDirection="ltr"
-    android:background="#CC000000">
+    android:background="@color/player_controller_bg">
 
     <LinearLayout
         android:id="@+id/acx_buttons"
@@ -21,44 +21,44 @@
         >
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_exo_prev"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_prev"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_exo_prev_chapter"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_prev_chapter"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_exo_next_chapter"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_next_chapter"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_exo_next"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_next"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
 <!--        <ImageButton-->
 <!--            android:id="@id/exo_rew"-->
@@ -78,24 +78,24 @@
 <!--            style="@style/ExoMediaButton"/>-->
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@id/exo_play"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_play"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@id/exo_pause"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_pause"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
 <!--        <ImageButton-->
 <!--            android:id="@id/exo_ffwd"-->
@@ -108,33 +108,34 @@
 <!--            app:srcCompat="@drawable/ic_ffwd" />-->
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_pinp_button"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_pinp"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_full_button"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
             tools:visibility="visible"
             app:srcCompat="@drawable/ic_fullscreen"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
         <ImageButton
+            style="@style/ButtonOnBlackWithRipple"
             android:id="@+id/mic_ctr_close_button"
             android:layout_width="@dimen/mic_media_button_width"
             android:layout_height="@dimen/mic_media_button_height"
-            android:background="?android:attr/selectableItemBackground"
             android:visibility="gone"
+            tools:visibility="visible"
             app:srcCompat="@drawable/ic_close"
-            app:tint="@color/white" />
+            app:tint="@color/player_control_button" />
 
     </LinearLayout>
 

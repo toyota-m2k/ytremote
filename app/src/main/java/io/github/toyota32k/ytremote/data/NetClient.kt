@@ -10,12 +10,12 @@ import kotlin.coroutines.suspendCoroutine
 object NetClient {
     val motherClient : OkHttpClient = OkHttpClient.Builder().build()
 
-    fun newCall(req: Request):Call {
-        return motherClient.newCall(req)
-    }
+//    fun newCall(req: Request):Call {
+//        return motherClient.newCall(req)
+//    }
 
     suspend fun executeAsync(req:Request):Response {
-        UtLogger.debug("NetClient: ${req.url.toString()}")
+        UtLogger.debug("NetClient: ${req.url}")
         return motherClient.newCall(req).executeAsync()
     }
 
@@ -23,7 +23,7 @@ object NetClient {
      * Coroutineを利用し、スレッドをブロックしないで同期的な通信を可能にする拡張メソッド
      * OkHttpのnewCall().execute()を置き換えるだけで使える。
      */
-    suspend fun Call.executeAsync() : Response {
+    private suspend fun Call.executeAsync() : Response {
         return suspendCoroutine {cont ->
             try {
                 enqueue(object : Callback {

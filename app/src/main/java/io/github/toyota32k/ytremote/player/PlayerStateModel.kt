@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import io.github.toyota32k.bindit.Command
 import io.github.toyota32k.utils.Listeners
 import io.github.toyota32k.utils.combineLatest
-import io.github.toyota32k.utils.mapEx
 import io.github.toyota32k.ytremote.data.ChapterList
 import io.github.toyota32k.ytremote.data.VideoItem
 import io.github.toyota32k.ytremote.model.AppViewModel
@@ -17,7 +16,7 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
 
     val isPlaying = MutableLiveData<Boolean>(false)
     val errorMessage = MutableLiveData<String?>(null)
-    val hasErrorMessage = errorMessage.mapEx { !it.isNullOrEmpty() }
+//    val hasErrorMessage = errorMessage.mapEx { !it.isNullOrEmpty() }
     val videoSize = MutableLiveData<Size>()
     val duration = MutableLiveData<Long>(0)
     var ended:Boolean = false

@@ -37,11 +37,6 @@ class ChapterView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    init {
-        val avm = AppViewModel.instance
-    }
-
-
     private fun time2x(time: Long): Float {
         return if (duration == 0L) 0f else mWidth.toFloat() * time.toFloat() / duration.toFloat()
     }

@@ -1,12 +1,13 @@
 package io.github.toyota32k.ytremote.model
 
 import android.content.Context
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import io.github.toyota32k.bindit.Command
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.ytremote.data.*
-import io.github.toyota32k.ytremote.utils.PackageUtil
-import javax.xml.transform.Source
 
 //class RatingRadioGroup : RadioButtonGroup<Rating>() {
 //    override fun id2value(id: Int): Rating? {
@@ -50,13 +51,13 @@ import javax.xml.transform.Source
 //}
 
 class SettingViewModel : ViewModel() {
-    val activeHost = MutableLiveData<String>()
+    val activeHost = MutableLiveData<String?>()
     val editingHost = MutableLiveData<String>()
     val hostList = MutableLiveData<ObservableList<String>>(ObservableList())
 //    val sourceType = MutableLiveData<SourceType>()
 
-    val sourceType = MutableLiveData<SourceType>(SourceType.DB)
-    val rating = MutableLiveData<Rating>(Rating.NORMAL)
+    val sourceType = MutableLiveData(SourceType.DB)
+    val rating = MutableLiveData(Rating.NORMAL)
     val markList = MutableLiveData<List<Mark>>(emptyList())
     val commandAddToList = Command()
     val commandCategory = Command()
@@ -72,7 +73,7 @@ class SettingViewModel : ViewModel() {
 //            sourceType.value = SourceType.values().find {it.id==v}
 //        }
 
-    fun hasHost(address:String) : Boolean {
+    private fun hasHost(address:String) : Boolean {
         return null != hostList.value?.find {it==address}
     }
 
@@ -80,7 +81,7 @@ class SettingViewModel : ViewModel() {
         addHost(address = editingHost.value ?: return)
     }
 
-    fun addHost(address:String) {
+    private fun addHost(address:String) {
         if(address.isNotBlank() && !hasHost(address)) {
             hostList.value?.add(address)
             activeHost.value = address
@@ -100,7 +101,7 @@ class SettingViewModel : ViewModel() {
                 hostList = hostList.value ?: listOf(),
                 sourceType = sourceType.value ?: SourceType.DB,
                 rating = rating.value ?: Rating.NORMAL,
-                marks = markList.value?: emptyList<Mark>(),
+                marks = markList.value?: emptyList(),
                 category = categoryList.category)
 
     fun load(context:Context) {

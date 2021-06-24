@@ -6,15 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.Binder
-import io.github.toyota32k.bindit.BoolConvert
-import io.github.toyota32k.bindit.VisibilityBinding
-import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.utils.disposableObserve
 import io.github.toyota32k.ytremote.R
 import io.github.toyota32k.ytremote.model.MainViewModel
-import io.github.toyota32k.ytremote.player.FullscreenVideoActivity
 import io.github.toyota32k.ytremote.player.MicVideoPlayer
 
 class HomeFragment : Fragment() {
@@ -31,7 +26,7 @@ class HomeFragment : Fragment() {
             register(
                 viewModel.player.disposableObserve(owner) {
                     if(it!=null) {
-                        playerView.bindPlayer(it, true, true, false)
+                        playerView.bindPlayer(it,enableFullscreen = true,enablePinP = true,enableClose = false)
                         uavView.visibility = View.GONE
                     } else {
                         playerView.unbindPlayer()

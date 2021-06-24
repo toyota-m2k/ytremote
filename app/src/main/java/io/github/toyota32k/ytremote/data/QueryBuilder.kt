@@ -6,13 +6,13 @@ class QueryBuilder {
     private val sb = StringBuilder()
 
     fun add(name:String, value:String) {
-        if(!sb.isEmpty()) {
+        if(sb.isNotEmpty()) {
             sb.append("&")
         }
         sb.append("${name}=${value}")
     }
     fun add(name:String, value:Int) {
-        if(!sb.isEmpty()) {
+        if(sb.isNotEmpty()) {
             sb.append("&")
         }
         sb.append("${name}=${value}")

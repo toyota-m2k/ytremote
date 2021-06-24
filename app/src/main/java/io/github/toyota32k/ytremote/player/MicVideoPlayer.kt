@@ -33,7 +33,7 @@ class MicVideoPlayer @JvmOverloads constructor(
     var binder: MicBinder
 
     inner class MicBinder : Binder() {
-        val exoPlayerView = findViewById<PlayerView>(R.id.exp_playerView).apply {
+        val exoPlayerView: PlayerView = findViewById<PlayerView>(R.id.exp_playerView).apply {
             useController = true /* ExoPlayerのControllerを表示する */
         }
         private val progressRingManager = ProgressRingManager(findViewById(R.id.exp_progressRing))

@@ -34,8 +34,8 @@ enum class Mark(val v:Int, val id:Int) {
     }
 
     companion object {
-        fun valueOf(v: Int, def: Mark = Mark.NONE): Mark {
-            return Mark.values().find { it.v == v } ?: def
+        fun valueOf(v: Int, def: Mark = NONE): Mark {
+            return values().find { it.v == v } ?: def
         }
         val idResolver:IIDValueResolver<Mark> by lazy { IDResolver() }
     }
@@ -53,7 +53,7 @@ enum class SourceType(val v:Int, val id:Int) {
 
     companion object {
         fun valueOf(v: Int, def: SourceType = DB): SourceType {
-            return SourceType.values().find { it.v == v } ?: def
+            return values().find { it.v == v } ?: def
         }
 
         val idResolver:IIDValueResolver<SourceType> by lazy { IDResolver() }
@@ -71,7 +71,7 @@ data class VideoItemFilter(val settings:Settings) {
             qb.add("r", settings.rating.v)
         }
         if(!settings.marks.isNullOrEmpty()) {
-            qb.add("m", settings.marks.map{"${it.v}"}.joinToString("."))
+            qb.add("m", settings.marks.joinToString(".") { "${it.v}" })
         }
         if(!settings.category.isNullOrEmpty()) {
             qb.add("c", settings.category)

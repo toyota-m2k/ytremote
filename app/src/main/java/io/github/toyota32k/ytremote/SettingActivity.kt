@@ -20,23 +20,23 @@ import io.github.toyota32k.ytremote.model.SettingViewModel
 import io.github.toyota32k.ytremote.utils.PackageUtil
 
 class SettingActivity : AppCompatActivity() {
-    lateinit var viewModel: SettingViewModel
-    lateinit var binder:SettingBinder
+    private lateinit var viewModel: SettingViewModel
+    private lateinit var binder:SettingBinder
 
     class SettingBinder(activity:SettingActivity, model:SettingViewModel) : Binder() {
-        val sourceTypeSelector = activity.findViewById<RadioGroup>(R.id.sourcr_type_selector)
-        val ratingSelector = activity.findViewById<MaterialButtonToggleGroup>(R.id.rating_selector)
-        val markSelector = activity.findViewById<MaterialButtonToggleGroup>(R.id.mark_selector)
-        val settingsToolbar = activity.findViewById<Toolbar>(R.id.settingsToolbar)
-        val hostAddrEdit = activity.findViewById<EditText>(R.id.host_addr_edit)
-        val addToListButton = activity.findViewById<View>(R.id.add_to_list_button)
-        val hostList = activity.findViewById<RecyclerView>(R.id.host_list)
-        val categoryButton = activity.findViewById<Button>(R.id.category_button)
+        val settingsToolbar: Toolbar = activity.findViewById(R.id.settingsToolbar)
+        private val sourceTypeSelector: RadioGroup = activity.findViewById(R.id.sourcr_type_selector)
+        private val ratingSelector: MaterialButtonToggleGroup = activity.findViewById(R.id.rating_selector)
+        private val markSelector: MaterialButtonToggleGroup = activity.findViewById(R.id.mark_selector)
+        private val hostAddrEdit: EditText = activity.findViewById(R.id.host_addr_edit)
+        private val addToListButton: View = activity.findViewById(R.id.add_to_list_button)
+        private val hostList: RecyclerView = activity.findViewById(R.id.host_list)
+        private val categoryButton: Button = activity.findViewById(R.id.category_button)
 
         init {
             settingsToolbar.title ="${PackageUtil.appName(activity)} - v${PackageUtil.getVersion(activity)}"
             hostList.layoutManager = LinearLayoutManager(activity)
-            hostList.setHasFixedSize(true)
+//            hostList.setHasFixedSize(true)
 
             register(
                 RadioGroupBinding.create(activity, sourceTypeSelector, model.sourceType, SourceType.idResolver, BindingMode.TwoWay),
@@ -48,7 +48,7 @@ class SettingActivity : AppCompatActivity() {
                 model.commandAddToList.connectViewEx(hostAddrEdit),
                 model.commandCategory.connectAndBind(activity, categoryButton, activity::selectCategory),
 
-                RecycleViewBinding.createHeightWrapContent<String>(activity, hostList, model.hostList.value!!, R.layout.host_list_item) { binder, view, address ->
+                RecycleViewBinding.create(activity, hostList, model.hostList.value!!, R.layout.host_list_item) { binder, view, address ->
                     val textView = view.findViewById<TextView>(R.id.address_text)
                     textView.text = address
                     binder.register(
@@ -78,7 +78,7 @@ class SettingActivity : AppCompatActivity() {
 
     private var listPopup: ListPopupWindow? = null
     private fun selectCategory(view: View?) {
-        val adapter = ArrayAdapter<String>(
+        val adapter = ArrayAdapter(
                 this,
                 R.layout.array_adapter_item,
                 viewModel.categoryList.list.value?.map {it.label}?.toTypedArray() ?: arrayOf("All"))

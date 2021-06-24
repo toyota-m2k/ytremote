@@ -3,6 +3,7 @@
 package io.github.toyota32k.ytremote.utils
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.view.View
 import androidx.core.animation.doOnCancel
 import androidx.core.animation.doOnEnd
@@ -48,7 +49,7 @@ class ViewSizeAnimChip<O>(private val target:O, private val startDp:Int, private
     }
 
     override fun toString(): String {
-        return super.toString() + "${target}"
+        return super.toString() + "$target"
     }
 }
 
@@ -79,7 +80,7 @@ class ViewVisibilityAnimationChip<O>(private val target:O, private val startVisi
     }
 
     override fun toString(): String {
-        return super.toString() + "${target}"
+        return super.toString() + "$target"
     }
 }
 
@@ -104,6 +105,7 @@ class AnimSet(private val duration:Long=300L) : AbstractAnimChip(), IAnimEngine 
 
         before(reverse)
 
+        @SuppressLint("Recycle")
         activeAnimator = (if(reverse) ValueAnimator.ofFloat(1f,0f) else ValueAnimator.ofFloat(0f,1f)).apply {
             duration = this@AnimSet.duration
             addUpdateListener {

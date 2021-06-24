@@ -11,17 +11,19 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class RefCount : IDisposable{
     private val refCount = AtomicInteger(0)
-    val listeners = Listeners<Boolean>()
+    private val listeners = Listeners<Boolean>()
     val value:Int get() = refCount.get()
 
     fun observeRelease(released:()->Unit) {
         listeners.addForever { released() }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun addRef() {
         refCount.incrementAndGet()
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun release() {
         if(refCount.decrementAndGet()<=0) {
             listeners.invoke(false)
