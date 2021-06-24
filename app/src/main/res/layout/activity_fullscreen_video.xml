@@ -10,7 +10,7 @@
     android:id="@+id/fullscreen_root"
     tools:context=".player.FullscreenVideoActivity">
 
-    <com.michael.ytremote.player.MicVideoPlayer
+    <io.github.toyota32k.ytremote.player.MicVideoPlayer
         android:id="@+id/fullscreen_player"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

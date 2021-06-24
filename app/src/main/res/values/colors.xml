@@ -8,4 +8,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="list_item_bg">#50000000</color>
+    <color name="player_control_button">#FFFFFF</color>
+    <color name="player_controller_bg">#AA000000</color>
 </resources>

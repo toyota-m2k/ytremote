@@ -1,46 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <data>
-        <import type="android.view.View"/>
-        <variable
-            name="model"
-            type="com.michael.ytremote.model.MainViewModel" />
-    </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black"
-        tools:context=".ui.home.HomeFragment">
+        tools:context=".fragment.HomeFragment">
 
-        <com.michael.ytremote.player.MicVideoPlayer
-            android:id="@+id/player_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:playOnTouch="false"
-            app:showControlBar="true"
-            app:fitParent="true"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="#00000000"
-            android:src="@drawable/ic_unavailable"
-            app:tint="#808080"
-            app:layout_constraintStart_toStartOf="@id/player_view"
-            app:layout_constraintEnd_toEndOf="@+id/player_view"
-            app:layout_constraintTop_toTopOf="@+id/player_view"
-            app:layout_constraintBottom_toBottomOf="@+id/player_view"
-            android:visibility="@{model.hasPlayer ? View.GONE : View.VISIBLE}"
-            />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+    <io.github.toyota32k.ytremote.player.MicVideoPlayer
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:playOnTouch="false"
+        app:showControlBar="true"
+        app:fitParent="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+    <ImageView
+        android:id="@+id/unavailable_icon_view"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="#00000000"
+        android:src="@drawable/ic_unavailable"
+        app:tint="#808080"
+        app:layout_constraintStart_toStartOf="@id/player_view"
+        app:layout_constraintEnd_toEndOf="@+id/player_view"
+        app:layout_constraintTop_toTopOf="@+id/player_view"
+        app:layout_constraintBottom_toBottomOf="@+id/player_view"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
