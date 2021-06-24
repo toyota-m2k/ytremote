@@ -8,6 +8,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.ytremote.BooApplication
+import io.github.toyota32k.ytremote.data.LastPlayInfo
 import io.github.toyota32k.ytremote.data.Settings
 import io.github.toyota32k.ytremote.data.VideoItem
 import io.github.toyota32k.ytremote.data.VideoListSource
@@ -27,6 +28,7 @@ class AppViewModel : ViewModel() {
     private val playerOwnerModel = PlayerOwnerManager(this)
     val playerStateModel = playerOwnerModel.playerState
     var refCount = RefCount()
+    var lastPlayInfo:LastPlayInfo? = null
 
     // 通信中フラグ
     private val loading = MutableLiveData<Boolean>()
@@ -83,6 +85,16 @@ class AppViewModel : ViewModel() {
             if(src!=null) {
                 logger.debug("list.count=${src.list.count()}")
                 videoSources.replace(src.list)
+                if(src.list.isNotEmpty() && currentItem.value==null) {
+                    val lpi = LastPlayInfo.get(BooApplication.instance)
+                    if(lpi!=null) {
+                        val item = src.list.find { it.id == lpi.id }
+                        if(item!=null) {
+                            currentItem.value = item
+                            lastPlayInfo = lpi
+                        }
+                    }
+                }
                 if(updateTimerTask==null) {
                     updateTimerTask = Timer().run {
                         schedule(60000,60000) {
@@ -149,6 +161,7 @@ class AppViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        LastPlayInfo.set(BooApplication.instance, currentItem.value?.id, playerOwnerModel.player?.currentPosition?:0, playerOwnerModel.player?.isPlaying?:false)
         super.onCleared()
         playerOwnerModel.closePlayer()
         updateTimerTask?.cancel()

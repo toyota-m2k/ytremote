@@ -24,7 +24,7 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
 
     val isPinP = MutableLiveData<Boolean>(false)
 
-    val endEvent = Listeners<Boolean>()
+//    val endEvent = Listeners<Boolean>()
     val updateButtonOnPinP = Listeners<Boolean>()
 
     val commandFullscreen = Command()
@@ -163,7 +163,7 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
         ended = fPlayerState == PlayerState.Playing
         setPlayerState(PlayerState.Paused)
         if(ended) {
-            endEvent.invoke(true)
+            commandNextVideo.onClick(null)
         }
     }
 }

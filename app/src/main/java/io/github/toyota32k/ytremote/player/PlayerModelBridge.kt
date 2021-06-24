@@ -156,6 +156,14 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
             when(playbackState) {
                 Player.STATE_READY -> {
                     stateModel.onLoaded(player?.duration?:0, player?.playWhenReady?:false)
+                    val lpi = appViewModel.lastPlayInfo ?: return
+                    appViewModel.lastPlayInfo = null
+                    if(lpi.id == appViewModel.currentItem.value?.id) {
+                        player?.seekTo(lpi.position)
+                        if(!lpi.playing) {
+                            player?.pause()
+                        }
+                    }
                 }
                 Player.STATE_ENDED -> {
                     stateModel.onEnd()

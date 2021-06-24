@@ -88,6 +88,7 @@ class MainActivity : AppCompatActivity() {
                 appViewModel.videoSources.addListener(owner ) {
                     // MainActivity上で再生中に、プレイリストが更新されたら、サイドバーを表示し、挿入位置までスクロールする
                     if( viewModel.player.value!=null && (it.kind == ObservableList.MutationKind.REFRESH || it.kind==ObservableList.MutationKind.INSERT)) {
+                        logger.debug("ShowSidePanel: (playlist has been updated.)")
                         viewModel.showSidePanel.value = true
                         if(it.kind==ObservableList.MutationKind.INSERT && appViewModel.videoSources.count()>0) {
                             binder.videoList.scrollToPosition(kotlin.math.min((it as ObservableList.InsertEventData).position, appViewModel.videoSources.count()-1))
@@ -248,6 +249,7 @@ class MainActivity : AppCompatActivity() {
                 if(requested!=actual) {
                     actual = requested
                     toolbarAnim.animate(requested)
+                    logger.debug("ShowSidePanel: $requested (with toolbar)")
                     viewModel.showSidePanel.value = requested
                 }
             }
