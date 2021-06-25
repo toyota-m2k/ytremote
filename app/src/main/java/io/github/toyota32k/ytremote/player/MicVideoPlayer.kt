@@ -9,6 +9,8 @@ import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ui.PlayerView
 import com.michael.ytremote.view.ChapterView
@@ -17,6 +19,8 @@ import io.github.toyota32k.utils.*
 import io.github.toyota32k.ytremote.R
 import io.github.toyota32k.ytremote.model.AppViewModel
 import io.github.toyota32k.ytremote.utils.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class MicVideoPlayer @JvmOverloads constructor(
@@ -36,6 +40,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         val exoPlayerView: PlayerView = findViewById<PlayerView>(R.id.exp_playerView).apply {
             useController = true /* ExoPlayerのControllerを表示する */
         }
+        val chapterLabelView : TextView = findViewById(R.id.chapter_label)
         private val progressRingManager = ProgressRingManager(findViewById(R.id.exp_progressRing))
 
         fun bindPlayer(player: SimpleExoPlayer, enableFullscreen: Boolean, enablePinP: Boolean, enableClose:Boolean) {
@@ -75,7 +80,8 @@ class MicVideoPlayer @JvmOverloads constructor(
                     onVideoSizeChanged(
                         it ?: return@disposableObserve
                     )
-                }
+                },
+                appViewModel.playerStateModel.chapterSelected.apply { set(owner, this@MicBinder::showChapterLabel) }
             )
             exoPlayerView.findViewById<View>(R.id.mic_ctr_full_button).apply {
                 visibility = if (enableFullscreen) {
@@ -123,6 +129,16 @@ class MicVideoPlayer @JvmOverloads constructor(
         fun onViewSizeChanged(width: Int, height: Int) {
             if (fitter.setHint(FitMode.Inside, width, height)) {
                 onVideoSizeChanged(cachedVideoSize ?: return)
+            }
+        }
+
+        val chapterLabelAnim = AnimSet().add(ViewVisibilityAnimationChip(findViewById(R.id.chapter_label), startVisible = false, endVisible = true, gone = true))
+        fun showChapterLabel(label:String) {
+            chapterLabelView.text = label
+            chapterLabelAnim.animate(false)
+            AppViewModel.instance.viewModelScope.launch {
+                delay(3000)
+                chapterLabelAnim.animate(true)
             }
         }
     }

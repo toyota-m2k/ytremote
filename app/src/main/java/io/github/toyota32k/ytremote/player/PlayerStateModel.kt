@@ -3,6 +3,7 @@ package io.github.toyota32k.ytremote.player
 import android.util.Size
 import androidx.lifecycle.*
 import io.github.toyota32k.bindit.Command
+import io.github.toyota32k.utils.Callback
 import io.github.toyota32k.utils.Listeners
 import io.github.toyota32k.utils.combineLatest
 import io.github.toyota32k.ytremote.data.ChapterList
@@ -23,6 +24,7 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
     val chapterSource = ChapterSource()
 
     val isPinP = MutableLiveData<Boolean>(false)
+    val chapterSelected = Callback<String,Unit>()
 
 //    val endEvent = Listeners<Boolean>()
     val updateButtonOnPinP = Listeners<Boolean>()

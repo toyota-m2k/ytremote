@@ -69,12 +69,18 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
             val player = this.player ?: return@bindForever
             val c = chapterList.prev(player.currentPosition) ?: return@bindForever
             player.seekTo(c.position)
+            if(c.label.isNotBlank()) {
+                stateModel.chapterSelected.invoke(c.label)
+            }
         }
         stateModel.commandNextChapter.bindForever {
             val chapterList = stateModel.chapterSource.chapterInfo.value?.list ?: return@bindForever
             val player = this.player ?: return@bindForever
             val c = chapterList.next(player.currentPosition) ?: return@bindForever
             player.seekTo(c.position)
+            if(c.label.isNotBlank()) {
+                stateModel.chapterSelected.invoke(c.label)
+            }
         }
         stateModel.commandTogglePlay.bindForever {
             this.player?.apply {
