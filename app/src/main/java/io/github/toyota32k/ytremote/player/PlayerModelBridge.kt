@@ -139,6 +139,10 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
         }
 
+//        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+//            logger.info("playWhenReady = $playWhenReady")
+//        }
+
         override fun onPlaybackStateChanged(playbackState: Int) {
 
             val ppn = {s:Int->
@@ -160,9 +164,9 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
                     appViewModel.lastPlayInfo = null
                     if(lpi.id == appViewModel.currentItem.value?.id) {
                         player?.seekTo(lpi.position)
-                        if(!lpi.playing) {
-                            player?.pause()
-                        }
+//                        if(!lpi.playing) {
+//                            player?.pause()
+//                        }
                     }
                 }
                 Player.STATE_ENDED -> {

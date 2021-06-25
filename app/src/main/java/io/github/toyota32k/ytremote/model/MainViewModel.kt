@@ -30,6 +30,7 @@ class MainViewModel : ViewModel(), IPlayerOwner {
 //    }
 
     override fun onCleared() {
+        logger.debug()
         super.onCleared()
         appViewModel.detachPlayerOwner(this)
     }

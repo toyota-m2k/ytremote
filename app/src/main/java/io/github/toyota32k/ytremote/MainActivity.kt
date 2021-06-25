@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        logger.debug()
+        logger.debug("isFinishing = $isFinishing")
         super.onDestroy()
         binder.dispose()
     }

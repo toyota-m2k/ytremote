@@ -43,6 +43,13 @@ class AppViewModel : ViewModel() {
 //    val playing = MutableLiveData<Boolean>()
 //    var currentId:String? = null
 
+    init {
+        refCount.observeRelease {
+            logger.debug("released... clear viewModelStore")
+            BooApplication.instance.releaseViewModelStore()
+        }
+    }
+
     fun attachPrimaryPlayerOwner(owner:IPlayerOwner) {
         refCount++
         playerOwnerModel.attachPrimaryOwner(owner)
@@ -161,6 +168,7 @@ class AppViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        logger.debug()
         LastPlayInfo.set(BooApplication.instance, currentItem.value?.id, playerOwnerModel.player?.currentPosition?:0, playerOwnerModel.player?.isPlaying?:false)
         super.onCleared()
         playerOwnerModel.closePlayer()

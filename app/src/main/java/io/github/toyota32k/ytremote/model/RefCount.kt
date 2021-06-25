@@ -2,6 +2,7 @@ package io.github.toyota32k.ytremote.model
 
 import io.github.toyota32k.utils.IDisposable
 import io.github.toyota32k.utils.Listeners
+import io.github.toyota32k.ytremote.BooApplication
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -15,22 +16,29 @@ class RefCount : IDisposable{
     val value:Int get() = refCount.get()
 
     fun observeRelease(released:()->Unit) {
-        listeners.addForever { released() }
+        listeners.addForever {
+            BooApplication.logger.debug("released.")
+            released()
+        }
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun addRef() {
+        BooApplication.logger.debug("$refCount")
         refCount.incrementAndGet()
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun release() {
+        BooApplication.logger.debug("$refCount")
         if(refCount.decrementAndGet()<=0) {
+            BooApplication.logger.debug("will be released.")
             listeners.invoke(false)
         }
     }
 
     override fun dispose() {
+        BooApplication.logger.debug("disposed.")
         listeners.clear()
     }
 
