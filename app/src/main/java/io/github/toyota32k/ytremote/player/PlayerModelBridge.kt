@@ -39,6 +39,7 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
                 player?.apply {
                     setMediaSource(mediaSourceFactory.createMediaSource(MediaItem.fromUri(item.url)), true)
                     prepare()
+                    play()
                 }
 
             }
@@ -170,9 +171,9 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
                     appViewModel.lastPlayInfo = null
                     if(lpi.id == appViewModel.currentItem.value?.id) {
                         player?.seekTo(lpi.position)
-//                        if(!lpi.playing) {
-//                            player?.pause()
-//                        }
+                        if(!lpi.playing) {
+                            player?.pause()
+                        }
                     }
                 }
                 Player.STATE_ENDED -> {
