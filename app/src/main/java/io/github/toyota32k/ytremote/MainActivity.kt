@@ -249,8 +249,10 @@ class MainActivity : AppCompatActivity() {
                 if(requested!=actual) {
                     actual = requested
                     toolbarAnim.animate(requested)
-                    logger.debug("ShowSidePanel: $requested (with toolbar)")
-                    viewModel.showSidePanel.value = requested
+//                    logger.debug("ShowSidePanel: $requested (with toolbar)")
+                    if(!requested) {
+                        viewModel.showSidePanel.value = requested
+                    }
                 }
             }
         }
