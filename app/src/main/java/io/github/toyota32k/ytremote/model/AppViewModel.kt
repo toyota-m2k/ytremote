@@ -177,7 +177,7 @@ class AppViewModel : ViewModel() {
     }
 
     companion object {
-        val logger = UtLog("APP")
+        val logger = BooApplication.logger
         val instance: AppViewModel
             get() = ViewModelProvider(BooApplication.instance, ViewModelProvider.NewInstanceFactory()).get(AppViewModel::class.java).apply {
                 playerOwnerModel.preparePlayer(BooApplication.instance)

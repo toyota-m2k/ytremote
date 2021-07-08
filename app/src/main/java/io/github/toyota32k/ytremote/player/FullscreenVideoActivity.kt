@@ -98,6 +98,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
         PLAY(1),
         PAUSE(2),
         SEEK_TOP(3),
+        NEXT(4),
     }
 
 //    private var mSource:Uri? = null
@@ -228,7 +229,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
         if (supportPinP) {
             val param = PictureInPictureParams.Builder()
                     .setAspectRatio(Rational(16,9))
-                    .setActions(listOf(playAction, pauseAction, seekTopAction))
+                    .setActions(listOf(playAction, pauseAction, nextMovieAction))
                     .build()
             enterPictureInPictureMode(param)
         }
@@ -273,6 +274,21 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             val icon = Icon.createWithResource(context, R.drawable.ic_back)
             val title = context.getText(R.string.seekTop)
             val pendingIntent = PendingIntent.getBroadcast(context, Action.SEEK_TOP.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.SEEK_TOP.code),0)
+            RemoteAction(icon, title, title, pendingIntent)
+        } else {
+            throw IllegalStateException("needs Android O or later.")
+        }
+    }
+
+    /**
+     * 先頭へシーク
+     */
+    private val nextMovieAction:RemoteAction by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val context = this@FullscreenVideoActivity
+            val icon = Icon.createWithResource(context, R.drawable.ic_next)
+            val title = context.getText(R.string.next_button)
+            val pendingIntent = PendingIntent.getBroadcast(context, Action.NEXT.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.NEXT.code),0)
             RemoteAction(icon, title, title, pendingIntent)
         } else {
             throw IllegalStateException("needs Android O or later.")
@@ -369,6 +385,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
                     Action.PAUSE.code -> binder.playerView.pause()
                     Action.PLAY.code -> binder.playerView.play()
                     Action.SEEK_TOP.code -> binder.playerView.seekStart()
+                    Action.NEXT.code -> appViewModel.nextVideo()
                     else -> {}
                 }
             }

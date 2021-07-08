@@ -49,6 +49,6 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         fun instanceFor(activity: ViewModelStoreOwner):MainViewModel {
             return ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory()).get(MainViewModel::class.java)
         }
-        val logger = UtLog("MainView")
+        val logger = UtLog("MainView", omissionNamespace = "io.github.toyota32k.ytremote")
     }
 }

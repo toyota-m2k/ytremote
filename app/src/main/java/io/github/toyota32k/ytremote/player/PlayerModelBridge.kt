@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerStateModel) {
     companion object {
-        val logger = UtLog("EXO")
+        val logger = UtLog("Exo", omissionNamespace = "io.github.toyota32k.ytremote")
     }
     lateinit var context:Context
     var player: SimpleExoPlayer? = null
