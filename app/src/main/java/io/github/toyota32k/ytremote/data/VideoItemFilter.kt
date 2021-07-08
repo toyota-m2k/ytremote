@@ -67,15 +67,16 @@ data class VideoItemFilter(val settings:Settings) {
         val qb = QueryBuilder()
         if(settings.sourceType!=SourceType.DB) {
             qb.add("s", settings.sourceType.v)
-        }
-        if(settings.rating!=Rating.NORMAL) {
-            qb.add("r", settings.rating.v)
-        }
-        if(!settings.marks.isNullOrEmpty()) {
-            qb.add("m", settings.marks.joinToString(".") { "${it.v}" })
-        }
-        if(!settings.category.isNullOrEmpty()) {
-            qb.add("c", settings.category)
+        } else {
+            if (settings.rating != Rating.NORMAL) {
+                qb.add("r", settings.rating.v)
+            }
+            if (!settings.marks.isNullOrEmpty()) {
+                qb.add("m", settings.marks.joinToString(".") { "${it.v}" })
+            }
+            if (!settings.category.isNullOrEmpty()) {
+                qb.add("c", settings.category)
+            }
         }
         if(date>0) {
             qb.add("d","$date")

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButtonToggleGroup
 import io.github.toyota32k.bindit.*
 import io.github.toyota32k.utils.UtLogger
+import io.github.toyota32k.utils.disposableObserve
 import io.github.toyota32k.ytremote.data.Mark
 import io.github.toyota32k.ytremote.data.Rating
 import io.github.toyota32k.ytremote.data.SourceType
@@ -56,6 +57,15 @@ class SettingActivity : AppCompatActivity() {
                         ClickBinding(activity, view.findViewById(R.id.del_button)) {  model.removeHost(address) },
                         VisibilityBinding.create(activity, view.findViewById(R.id.check_mark), model.activeHost.map { it==address }, BoolConvert.Straight, VisibilityBinding.HiddenMode.HideByInvisible),
                     )
+                },
+
+                model.activeHost.disposableObserve(activity) { activatedHost->
+                    if(!activatedHost.isNullOrEmpty()) {
+                        val editing = model.editingHost.value
+                        if(editing.isNullOrBlank()|| model.hostList.value?.contains(editing) == true) {
+                            model.editingHost.value = activatedHost
+                        }
+                    }
                 }
             )
         }
