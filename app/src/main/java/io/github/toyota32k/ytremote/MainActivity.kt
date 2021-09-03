@@ -12,10 +12,7 @@ import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import io.github.toyota32k.bindit.BackgroundBinding
-import io.github.toyota32k.bindit.Binder
-import io.github.toyota32k.bindit.ClickBinding
-import io.github.toyota32k.bindit.RecycleViewBinding
+import io.github.toyota32k.bindit.*
 import io.github.toyota32k.bindit.list.ObservableList
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.utils.disposableObserve
@@ -81,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                     val textView = view.findViewById<TextView>(R.id.video_item_text)
                     textView.text = videoItem.name
                     binder.register(
-                        ClickBinding(owner, textView) { viewModel.appViewModel.currentItem.value = videoItem },
+                        Command().connectAndBind(owner, textView) {viewModel.appViewModel.currentItem.value = videoItem},
                         BackgroundBinding.create(owner, textView, viewModel.appViewModel.currentItem.map { ColorDrawable(if(it?.id == videoItem.id) selectedColor else normalColor) })
                     )
                 },

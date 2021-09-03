@@ -53,8 +53,8 @@ class SettingActivity : AppCompatActivity() {
                     val textView = view.findViewById<TextView>(R.id.address_text)
                     textView.text = address
                     binder.register(
-                        ClickBinding(activity, view.findViewById(R.id.item_container)) {  model.activeHost.value = address },
-                        ClickBinding(activity, view.findViewById(R.id.del_button)) {  model.removeHost(address) },
+                        Command().connectAndBind(activity, view.findViewById(R.id.item_container)) {  model.activeHost.value = address },
+                        Command().connectAndBind(activity, view.findViewById(R.id.del_button)) {  model.removeHost(address) },
                         VisibilityBinding.create(activity, view.findViewById(R.id.check_mark), model.activeHost.map { it==address }, BoolConvert.Straight, VisibilityBinding.HiddenMode.HideByInvisible),
                     )
                 },

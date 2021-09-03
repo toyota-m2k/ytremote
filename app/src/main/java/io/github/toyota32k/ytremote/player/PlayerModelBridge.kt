@@ -124,7 +124,7 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
             // speed, pitch, skipSilence, scaledUsPerMs
         }
 
-        override fun onPlayerError(error: ExoPlaybackException) {
+        override fun onPlayerError(error: PlaybackException) {
             logger.stackTrace(error)
             stateModel.onError(context.getString(R.string.error))
         }
