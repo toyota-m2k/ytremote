@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import io.github.toyota32k.utils.UtLog
-import io.github.toyota32k.ytremote.model.AppViewModel
 
 class BooApplication : Application(), ViewModelStoreOwner {
     private var viewModelStore : ViewModelStore? = null

@@ -1,7 +1,7 @@
 package io.github.toyota32k.ytremote.model
 
 import androidx.lifecycle.*
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ExoPlayer
 import io.github.toyota32k.bindit.Command
 import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.utils.combineLatest
@@ -9,7 +9,7 @@ import io.github.toyota32k.utils.combineLatest
 class MainViewModel : ViewModel(), IPlayerOwner {
     val appViewModel = AppViewModel.instance
     val showSidePanel = MutableLiveData(true)
-    val player = MutableLiveData<SimpleExoPlayer>()     // ExoPlayer はActivityのライフサイクルに影響されないのでビューモデルに覚えておく。
+    val player = MutableLiveData<ExoPlayer>()     // ExoPlayer はActivityのライフサイクルに影響されないのでビューモデルに覚えておく。
     val isPlayingOnMainView = combineLatest(player, appViewModel.playerStateModel.isPlaying) { player, isPlaying-> player!=null && isPlaying==true }.distinctUntilChanged()
 //    val hasPlayer = player.mapEx { it != null }
 
@@ -17,7 +17,7 @@ class MainViewModel : ViewModel(), IPlayerOwner {
         appViewModel.attachPrimaryPlayerOwner(this)
     }
 
-    override fun ownerAssigned(player: SimpleExoPlayer) {
+    override fun ownerAssigned(player: ExoPlayer) {
         this.player.value = player
     }
 

@@ -22,7 +22,7 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ExoPlayer
 import io.github.toyota32k.bindit.Binder
 import io.github.toyota32k.utils.UtLogger
 import io.github.toyota32k.ytremote.MainActivity
@@ -440,7 +440,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
         binder.playerView.unbindPlayer()
     }
 
-    override fun ownerAssigned(player: SimpleExoPlayer) {
+    override fun ownerAssigned(player: ExoPlayer) {
         binder.playerView.bindPlayer(player,enableFullscreen = false,enablePinP = true,enableClose = true)
     }
 }

@@ -5,7 +5,8 @@ import android.util.Size
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultDataSource
+import com.google.android.exoplayer2.video.VideoSize
 import io.github.toyota32k.utils.SuspendableEvent
 import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.ytremote.BooApplication
@@ -19,7 +20,7 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
         val logger = UtLog("Exo", omissionNamespace = "io.github.toyota32k.ytremote")
     }
     lateinit var context:Context
-    var player: SimpleExoPlayer? = null
+    var player: ExoPlayer? = null
         private set
     var loading:Boolean = false
     var playing:Boolean
@@ -29,7 +30,7 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
     private var needToWatch = SuspendableEvent(signal = false, autoReset = false)
     private var disabledRanges:List<Range>? = null
     private val mediaSourceFactory = ProgressiveMediaSource.Factory(        // ExtractorMediaSource ... non-adaptiveなほとんどのファイルに対応
-        DefaultDataSourceFactory(BooApplication.instance, "amv")
+        DefaultDataSource.Factory(BooApplication.instance)
     )
 
     init {
@@ -83,6 +84,14 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
                 stateModel.chapterSelected.invoke(c.label)
             }
         }
+        stateModel.commandNextSeek.bindForever {
+            val player = this.player ?: return@bindForever
+            player.seekForward()
+        }
+        stateModel.commandPrevSeek.bindForever {
+            val player = this.player ?: return@bindForever
+            player.seekBack()
+        }
         stateModel.commandTogglePlay.bindForever {
             this.player?.apply {
                 if(isPlaying) {
@@ -112,8 +121,8 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
     }
 
     private val mVideoListener = object : Player.Listener {
-        override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
-            stateModel.videoSize.value = Size(width,height)
+        override fun onVideoSizeChanged(videoSize: VideoSize) {
+            stateModel.videoSize.value = Size(videoSize.width,videoSize.height)
         }
 
         override fun onRenderedFirstFrame() {
@@ -231,7 +240,10 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
     fun preparePlayer(context: Context) {
         this.context = context
         if(null==player) {
-            player = SimpleExoPlayer.Builder(context).build().apply {
+            player = ExoPlayer.Builder(context)
+                .setSeekForwardIncrementMs(15*1000L)
+                .setSeekBackIncrementMs(10*1000L)
+                .build().apply {
                 playWhenReady = true
                 addListener(mVideoListener)
             }

@@ -4,9 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ExoPlayer
 import io.github.toyota32k.bindit.list.ObservableList
-import io.github.toyota32k.utils.UtLog
 import io.github.toyota32k.ytremote.BooApplication
 import io.github.toyota32k.ytremote.data.LastPlayInfo
 import io.github.toyota32k.ytremote.data.Settings
@@ -21,7 +20,7 @@ import kotlin.concurrent.schedule
 
 interface IPlayerOwner {
     fun ownerResigned()
-    fun ownerAssigned(player:SimpleExoPlayer)
+    fun ownerAssigned(player: ExoPlayer)
 }
 
 class AppViewModel : ViewModel() {

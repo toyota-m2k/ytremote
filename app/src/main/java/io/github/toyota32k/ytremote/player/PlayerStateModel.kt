@@ -36,6 +36,8 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
     val commandPrevVideo = Command()
     val commandNextChapter = Command()
     val commandPrevChapter = Command()
+    val commandNextSeek = Command()
+    val commandPrevSeek = Command()
     val commandTogglePlay = Command()
 
     data class ChapterInfo(val list:ChapterList, val duration:Long, val trimming:Range) {

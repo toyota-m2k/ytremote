@@ -1,7 +1,7 @@
 package io.github.toyota32k.ytremote.player
 
 import android.content.Context
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ExoPlayer
 import io.github.toyota32k.ytremote.model.AppViewModel
 import io.github.toyota32k.ytremote.model.IPlayerOwner
 import java.lang.ref.WeakReference
@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference
 class PlayerOwnerManager(val appViewModel: AppViewModel) {
     val playerState = PlayerStateModel(appViewModel)
     private val playerBridge = PlayerModelBridge(appViewModel, playerState)
-    val player:SimpleExoPlayer? get() = playerBridge.player
+    val player: ExoPlayer? get() =playerBridge.player
 
     private var primaryOwner : WeakReference<IPlayerOwner>? = null
     private var secondaryOwner : WeakReference<IPlayerOwner>? = null

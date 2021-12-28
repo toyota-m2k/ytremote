@@ -43,7 +43,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         val chapterLabelView : TextView = findViewById(R.id.chapter_label)
         private val progressRingManager = ProgressRingManager(findViewById(R.id.exp_progressRing))
 
-        fun bindPlayer(player: SimpleExoPlayer, enableFullscreen: Boolean, enablePinP: Boolean, enableClose:Boolean) {
+        fun bindPlayer(player: ExoPlayer, enableFullscreen: Boolean, enablePinP: Boolean, enableClose:Boolean) {
             reset()
             exoPlayerView.player = player
             val owner = lifecycleOwner()!!
@@ -67,6 +67,16 @@ class MicVideoPlayer @JvmOverloads constructor(
                 appViewModel.playerStateModel.commandNextChapter.connectViewEx(
                     exoPlayerView.findViewById<View>(
                         R.id.mic_ctr_exo_next_chapter
+                    ).apply { visibility = VISIBLE }
+                ),
+                appViewModel.playerStateModel.commandNextSeek.connectViewEx(
+                    exoPlayerView.findViewById<View>(
+                        R.id.mic_ctr_exo_next_seek
+                    ).apply { visibility = VISIBLE }
+                ),
+                appViewModel.playerStateModel.commandPrevSeek.connectViewEx(
+                    exoPlayerView.findViewById<View>(
+                        R.id.mic_ctr_exo_prev_seek
                     ).apply { visibility = VISIBLE }
                 ),
                 appViewModel.playerStateModel.commandTogglePlay.connectViewEx(this@MicVideoPlayer),
@@ -169,7 +179,7 @@ class MicVideoPlayer @JvmOverloads constructor(
         }
     }
 
-    fun bindPlayer(player: SimpleExoPlayer, enableFullscreen: Boolean, enablePinP: Boolean, enableClose: Boolean) {
+    fun bindPlayer(player: ExoPlayer, enableFullscreen: Boolean, enablePinP: Boolean, enableClose: Boolean) {
         binder.bindPlayer(player, enableFullscreen, enablePinP, enableClose)
     }
     fun unbindPlayer() {
