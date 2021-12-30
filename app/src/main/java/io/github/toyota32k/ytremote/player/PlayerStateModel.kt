@@ -39,6 +39,8 @@ class PlayerStateModel(val appViewModel: AppViewModel) {
     val commandNextSeek = Command()
     val commandPrevSeek = Command()
     val commandTogglePlay = Command()
+    val commandPlay = Command()
+    val commandPause = Command()
 
     data class ChapterInfo(val list:ChapterList, val duration:Long, val trimming:Range) {
         val disabledRanges:List<Range> by lazy {

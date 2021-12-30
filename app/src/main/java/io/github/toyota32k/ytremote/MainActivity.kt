@@ -4,6 +4,9 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.SystemClock
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +24,7 @@ import io.github.toyota32k.ytremote.data.NetClient
 import io.github.toyota32k.ytremote.fragment.HomeFragment
 import io.github.toyota32k.ytremote.model.MainViewModel
 import io.github.toyota32k.ytremote.player.FullscreenVideoActivity
+import io.github.toyota32k.ytremote.player.MediaSessionContainer
 import io.github.toyota32k.ytremote.utils.AnimSequence
 import io.github.toyota32k.ytremote.utils.AnimSet
 import io.github.toyota32k.ytremote.utils.ViewSizeAnimChip
@@ -142,6 +146,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    lateinit var session: MediaSessionContainer
+//    lateinit var session:MediaSessionCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         logger.debug()
@@ -152,6 +158,38 @@ class MainActivity : AppCompatActivity() {
             UtLogger.stackTrace(e)
         }
         setContentView(R.layout.activity_main)
+
+        session = MediaSessionContainer(this)
+        session.activate()
+
+//        session = MediaSessionCompat(this, logger.tag).apply {
+//            setPlaybackState(
+//                PlaybackStateCompat.Builder()
+//                    .setActions(
+//                        PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PLAY_PAUSE or
+//                        PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or PlaybackStateCompat.ACTION_PAUSE or
+//                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+//                    .setState(PlaybackStateCompat.STATE_PAUSED, 1, 2f, SystemClock.elapsedRealtime())
+//                    .build() )
+//            setCallback(object:MediaSessionCompat.Callback() {
+//                override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
+//                    if(mediaButtonEvent!=null && mediaButtonEvent.getAction() == Intent.ACTION_MEDIA_BUTTON) {
+//                        val event = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT) as? KeyEvent
+//                        if (event != null) {
+//                            val action = event.action
+//                            val code = event.keyCode
+//                            if (action == KeyEvent.ACTION_DOWN) {
+//                                logger.debug(event.toString())
+//                            }
+//                        }
+//
+//                    }
+//                    return super.onMediaButtonEvent(mediaButtonEvent)
+//                }
+//            })
+//            isActive = true
+//        }
+
 
         viewModel = MainViewModel.instanceFor(this)
         binder = MainViewBinder()
@@ -263,4 +301,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+//    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+//        logger.debug(event.toString())
+//        return super.onKeyDown(keyCode, event)
+//    }
 }

@@ -94,9 +94,23 @@ class PlayerModelBridge(val appViewModel: AppViewModel, val stateModel:PlayerSta
         }
         stateModel.commandTogglePlay.bindForever {
             this.player?.apply {
-                if(isPlaying) {
+                if(!isPlaying) {
                     play()
                 } else {
+                    pause()
+                }
+            }
+        }
+        stateModel.commandPlay.bindForever {
+            this.player?.apply {
+                if(!isPlaying) {
+                  play()
+                }
+            }
+        }
+        stateModel.commandPause.bindForever {
+            this.player?.apply {
+                if(isPlaying) {
                     pause()
                 }
             }

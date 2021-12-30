@@ -243,7 +243,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             val context = this@FullscreenVideoActivity
             val icon = Icon.createWithResource(context, R.drawable.ic_play)
             val title = context.getText(R.string.play)
-            val pendingIntent = PendingIntent.getBroadcast(context, Action.PLAY.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.PLAY.code),0)
+            val pendingIntent = PendingIntent.getBroadcast(context, Action.PLAY.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.PLAY.code),PendingIntent.FLAG_IMMUTABLE)
             RemoteAction(icon, title, title, pendingIntent)
         } else {
             throw IllegalStateException("needs Android O or later.")
@@ -258,7 +258,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             val context = this@FullscreenVideoActivity
             val icon = Icon.createWithResource(context, R.drawable.ic_pause)
             val title = context.getText(R.string.pause)
-            val pendingIntent = PendingIntent.getBroadcast(context, Action.PAUSE.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.PAUSE.code),0)
+            val pendingIntent = PendingIntent.getBroadcast(context, Action.PAUSE.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.PAUSE.code),PendingIntent.FLAG_IMMUTABLE)
             RemoteAction(icon, title, title, pendingIntent)
         } else {
             throw IllegalStateException("needs Android O or later.")
@@ -273,7 +273,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             val context = this@FullscreenVideoActivity
             val icon = Icon.createWithResource(context, R.drawable.ic_back)
             val title = context.getText(R.string.seekTop)
-            val pendingIntent = PendingIntent.getBroadcast(context, Action.SEEK_TOP.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.SEEK_TOP.code),0)
+            val pendingIntent = PendingIntent.getBroadcast(context, Action.SEEK_TOP.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.SEEK_TOP.code),PendingIntent.FLAG_IMMUTABLE)
             RemoteAction(icon, title, title, pendingIntent)
         } else {
             throw IllegalStateException("needs Android O or later.")
@@ -288,7 +288,7 @@ class FullscreenVideoActivity : AppCompatActivity(), IPlayerOwner {
             val context = this@FullscreenVideoActivity
             val icon = Icon.createWithResource(context, R.drawable.ic_next)
             val title = context.getText(R.string.next_button)
-            val pendingIntent = PendingIntent.getBroadcast(context, Action.NEXT.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.NEXT.code),0)
+            val pendingIntent = PendingIntent.getBroadcast(context, Action.NEXT.code, Intent(INTENT_NAME).putExtra(ACTION_TYPE_KEY, Action.NEXT.code),PendingIntent.FLAG_IMMUTABLE)
             RemoteAction(icon, title, title, pendingIntent)
         } else {
             throw IllegalStateException("needs Android O or later.")
