@@ -9,6 +9,7 @@ Remote Video Player for [BooTube](https://github.com/toyota-m2k/ytplayer)
 
 ## Feature
 
-- support picture in picture mode
+- supports picture in picture mode
 - playing videos in background
-- request urls to BooTube
+- requests urls to BooTube
+- suports day/night mode and color variations (themes)
